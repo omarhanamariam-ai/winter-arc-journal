@@ -1,0 +1,1168 @@
+/**
+ * WINTER ARC TRACKER - CORE LOGIC & ENGINE
+ * Author: JARVIS for Omar
+ * Pure Vanilla JavaScript - 100% Offline Capable
+ */
+
+(function () {
+  'use strict';
+
+  // Storage Key
+  const STORAGE_KEY = 'WINTER_ARC_TRACKER_DATA_V1';
+  const TOTAL_DAYS = 180;
+
+  // Sound Engine (Web Audio API)
+  class SoundEngine {
+    constructor() {
+      this.enabled = true;
+      this.ctx = null;
+    }
+
+    init() {
+      if (!this.ctx && (window.AudioContext || window.webkitAudioContext)) {
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    playTick() {
+      if (!this.enabled) return;
+      try {
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(650, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      } catch (e) {}
+    }
+
+    playChime() {
+      if (!this.enabled) return;
+      try {
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, index) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const startTime = this.ctx.currentTime + index * 0.08;
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.12, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.45);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + 0.45);
+        });
+      } catch (e) {}
+    }
+  }
+
+  // Confetti Particle Engine
+  class ConfettiEngine {
+    constructor(canvasId) {
+      this.canvas = document.getElementById(canvasId);
+      if (!this.canvas) return;
+      this.ctx = this.canvas.getContext('2d');
+      this.particles = [];
+      this.animId = null;
+      this.resize();
+      window.addEventListener('resize', () => this.resize());
+    }
+
+    resize() {
+      if (!this.canvas) return;
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+    }
+
+    burst() {
+      if (!this.canvas) return;
+      this.resize();
+      const count = 90;
+      const colors = ['#38bdf8', '#0284c7', '#2dd4bf', '#fbbf24', '#ffffff', '#818cf8'];
+      for (let i = 0; i < count; i++) {
+        this.particles.push({
+          x: this.canvas.width / 2 + (Math.random() - 0.5) * 200,
+          y: this.canvas.height / 3 + (Math.random() - 0.5) * 100,
+          w: Math.random() * 8 + 4,
+          h: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: (Math.random() - 0.5) * 14,
+          vy: Math.random() * -12 - 4,
+          gravity: 0.35,
+          rotation: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 10,
+          opacity: 1
+        });
+      }
+      if (!this.animId) {
+        this.loop();
+      }
+    }
+
+    loop() {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      for (let i = this.particles.length - 1; i >= 0; i--) {
+        const p = this.particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.rotation += p.vRot;
+        p.opacity -= 0.012;
+
+        if (p.opacity <= 0 || p.y > this.canvas.height) {
+          this.particles.splice(i, 1);
+          continue;
+        }
+
+        this.ctx.save();
+        this.ctx.translate(p.x, p.y);
+        this.ctx.rotate((p.rotation * Math.PI) / 180);
+        this.ctx.fillStyle = p.color;
+        this.ctx.globalAlpha = Math.max(0, p.opacity);
+        this.ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        this.ctx.restore();
+      }
+
+      if (this.particles.length > 0) {
+        this.animId = requestAnimationFrame(() => this.loop());
+      } else {
+        this.animId = null;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      }
+    }
+  }
+
+  // Snowfall Engine (Winter Arc Ambient)
+  class SnowEngine {
+    constructor(canvasId) {
+      this.canvas = document.getElementById(canvasId);
+      if (!this.canvas) return;
+      this.ctx = this.canvas.getContext('2d');
+      this.flakes = [];
+      this.enabled = true;
+      this.resize();
+      this.initFlakes();
+      window.addEventListener('resize', () => this.resize());
+      this.loop();
+    }
+
+    resize() {
+      if (!this.canvas) return;
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+    }
+
+    initFlakes() {
+      const count = 45;
+      this.flakes = [];
+      for (let i = 0; i < count; i++) {
+        this.flakes.push({
+          x: Math.random() * this.canvas.width,
+          y: Math.random() * this.canvas.height,
+          radius: Math.random() * 2 + 0.8,
+          density: Math.random() * 1.5 + 0.5,
+          opacity: Math.random() * 0.5 + 0.2
+        });
+      }
+    }
+
+    toggle() {
+      this.enabled = !this.enabled;
+      if (!this.enabled) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      }
+      return this.enabled;
+    }
+
+    loop() {
+      if (this.enabled) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillStyle = '#ffffff';
+
+        for (let i = 0; i < this.flakes.length; i++) {
+          const f = this.flakes[i];
+          this.ctx.beginPath();
+          this.ctx.arc(f.x, f.y, f.radius, 0, Math.PI * 2, false);
+          this.ctx.fillStyle = `rgba(224, 242, 254, ${f.opacity})`;
+          this.ctx.fill();
+
+          f.y += Math.cos(f.density) + 0.7 + f.radius / 2;
+          f.x += Math.sin(f.density) * 0.4;
+
+          if (f.y > this.canvas.height) {
+            f.y = -5;
+            f.x = Math.random() * this.canvas.width;
+          }
+          if (f.x > this.canvas.width) {
+            f.x = 0;
+          } else if (f.x < 0) {
+            f.x = this.canvas.width;
+          }
+        }
+      }
+      requestAnimationFrame(() => this.loop());
+    }
+  }
+
+  // App Controller
+  class WinterArcApp {
+    constructor() {
+      this.sound = new SoundEngine();
+      this.confetti = new ConfettiEngine('confetti-canvas');
+      this.snow = new SnowEngine('snow-canvas');
+
+      this.currentDay = 1;
+      this.activeTab = 'daily';
+      this.activeMonthFilter = 'all';
+      this.saveDebounceTimer = null;
+
+      // Default Template Schema
+      this.data = this.loadData();
+      
+      this.initDOMElements();
+      this.bindEvents();
+      this.render();
+    }
+
+    // Default State Factory
+    getDefaultData() {
+      const today = new Date().toISOString().split('T')[0];
+      return {
+        startDate: today,
+        customHabits: [
+          { id: 'workout', label: 'تمرين رياضي / جيم (Workout)', category: 'الجسد', icon: '🏋️‍♂️' },
+          { id: 'deepwork', label: 'العمل المركز على هدفي (Deep Work)', category: 'المستقبل', icon: '🎯' },
+          { id: 'reading', label: 'قراءة وتغذية العقل (30 دقيقة)', category: 'العقل', icon: '📚' },
+          { id: 'water_diet', label: 'شرب 3 لتر مياه + دايت نظيف', category: 'الصحة', icon: '💧' },
+          { id: 'sleep_early', label: 'نوم مبكر واستيقاظ منضبط', category: 'الانضباط', icon: '⏰' }
+        ],
+        days: {}
+      };
+    }
+
+    // Load Data from LocalStorage
+    loadData() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (!parsed.days) parsed.days = {};
+          if (!parsed.customHabits) parsed.customHabits = this.getDefaultData().customHabits;
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Error loading stored Winter Arc data:', e);
+      }
+      return this.getDefaultData();
+    }
+
+    // Save Data to LocalStorage
+    saveData(showPill = true) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+        if (showPill) this.triggerAutoSavePill();
+      } catch (e) {
+        console.error('Error saving Winter Arc data:', e);
+      }
+    }
+
+    triggerAutoSavePill() {
+      const pill = document.getElementById('autosave-pill');
+      if (!pill) return;
+      pill.classList.add('show');
+      clearTimeout(this.savePillTimeout);
+      this.savePillTimeout = setTimeout(() => {
+        pill.classList.remove('show');
+      }, 1600);
+    }
+
+    // Get Day Object (or initialize empty default)
+    getDay(dayNum) {
+      if (!this.data.days[dayNum]) {
+        this.data.days[dayNum] = {
+          prayers: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
+          quran: { read: false, pages: '', note: '' },
+          discipline: null, // 'adhered' | 'fallen'
+          habits: {},
+          rating: null, // 1 to 10
+          satisfaction: null, // 'yes' | 'somewhat' | 'no'
+          weather: null, // 'sunny' | 'clear' | 'cloudy' | 'rainy' | 'storm'
+          journal_today: '',
+          journal_goal: '',
+          journal_feelings: '',
+          journal_honest: '',
+          percent: 0,
+          updatedAt: Date.now()
+        };
+      }
+      return this.data.days[dayNum];
+    }
+
+    // Calculate Completion Percentage for a day
+    calculatePercentage(dayNum) {
+      const day = this.getDay(dayNum);
+      let totalItems = 0;
+      let completedItems = 0;
+
+      // 1. Prayers (5 items)
+      const prayers = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+      prayers.forEach(p => {
+        totalItems++;
+        if (day.prayers && day.prayers[p]) completedItems++;
+      });
+
+      // 2. Quran (1 item)
+      totalItems++;
+      if (day.quran && day.quran.read) completedItems++;
+
+      // 3. Discipline / الابتعاد عن الذنوب (1 item)
+      totalItems++;
+      if (day.discipline === 'adhered') completedItems++;
+
+      // 4. Custom Habits (each habit is 1 item)
+      this.data.customHabits.forEach(h => {
+        totalItems++;
+        if (day.habits && day.habits[h.id]) completedItems++;
+      });
+
+      const percent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+      const prevPercent = day.percent || 0;
+      day.percent = percent;
+      day.updatedAt = Date.now();
+
+      // Check for celebration (hitting 100%)
+      if (percent === 100 && prevPercent < 100) {
+        this.sound.playChime();
+        this.confetti.burst();
+      }
+
+      return percent;
+    }
+
+    // Calculate Global Statistics
+    getGlobalStats() {
+      let daysWithActivity = 0;
+      let completedDays = 0; // days >= 70%
+      let totalPercentSum = 0;
+      let maxStreak = 0;
+      let tempStreak = 0;
+
+      for (let i = 1; i <= TOTAL_DAYS; i++) {
+        const day = this.data.days[i];
+        const pct = day ? day.percent || 0 : 0;
+
+        if (pct > 0) {
+          daysWithActivity++;
+          totalPercentSum += pct;
+        }
+
+        if (pct >= 70) {
+          completedDays++;
+          tempStreak++;
+          if (tempStreak > maxStreak) maxStreak = tempStreak;
+        } else {
+          tempStreak = 0;
+        }
+      }
+
+      // Calculate current active streak ending at current active day
+      let activeStreak = 0;
+      for (let i = this.currentDay; i >= 1; i--) {
+        const pct = this.data.days[i] ? this.data.days[i].percent || 0 : 0;
+        if (pct >= 70) {
+          activeStreak++;
+        } else {
+          break;
+        }
+      }
+
+      const avgPercent = daysWithActivity > 0 ? Math.round(totalPercentSum / daysWithActivity) : 0;
+      const overallArcProgress = Math.round((totalPercentSum / (TOTAL_DAYS * 100)) * 100);
+
+      return {
+        completedDays,
+        daysWithActivity,
+        avgPercent,
+        overallArcProgress,
+        currentStreak: activeStreak,
+        bestStreak: maxStreak
+      };
+    }
+
+    // DOM Bindings
+    initDOMElements() {
+      this.viewDaily = document.getElementById('view-daily');
+      this.viewMatrix = document.getElementById('view-matrix');
+      this.viewSettings = document.getElementById('view-settings');
+
+      this.currentDayBadge = document.querySelector('.current-day-badge');
+      this.currentDayBadgeTitle = document.getElementById('current-day-badge-title');
+      this.currentDayDate = document.getElementById('current-day-date');
+      this.topProgressBar = document.getElementById('top-progress-bar');
+      this.topProgressText = document.getElementById('top-progress-text');
+      this.streakCountDisplay = document.getElementById('streak-count-display');
+
+      this.tooltip = document.getElementById('grid-tooltip');
+
+      this.modalOverlay = document.getElementById('modal-overlay');
+      this.modalTitle = document.getElementById('modal-title');
+      this.modalBody = document.getElementById('modal-body');
+      this.modalConfirmBtn = document.getElementById('modal-confirm-btn');
+      this.modalCancelBtn = document.getElementById('modal-cancel-btn');
+    }
+
+    // Event Listeners
+    bindEvents() {
+      // Tab Switching
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.dataset.tab;
+          this.switchTab(tab);
+        });
+      });
+
+      // Quick Jump Modal when clicking current day badge
+      if (this.currentDayBadge) {
+        this.currentDayBadge.style.cursor = 'pointer';
+        this.currentDayBadge.title = 'اضغط للانتقال السريع لأي يوم';
+        this.currentDayBadge.addEventListener('click', () => {
+          this.openJumpDayModal();
+        });
+      }
+
+      // Day Navigation buttons
+      document.getElementById('btn-prev-day').addEventListener('click', () => {
+        if (this.currentDay > 1) {
+          this.setDay(this.currentDay - 1);
+          this.sound.playTick();
+        }
+      });
+
+      document.getElementById('btn-next-day').addEventListener('click', () => {
+        if (this.currentDay < TOTAL_DAYS) {
+          this.setDay(this.currentDay + 1);
+          this.sound.playTick();
+        }
+      });
+
+      document.getElementById('btn-jump-today').addEventListener('click', () => {
+        const start = new Date(this.data.startDate);
+        const now = new Date();
+        const diffTime = now - start;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        const targetDay = Math.min(Math.max(diffDays, 1), TOTAL_DAYS);
+        this.setDay(targetDay);
+        this.sound.playTick();
+      });
+
+      // Sound Toggle
+      const soundBtn = document.getElementById('btn-toggle-sound');
+      soundBtn.addEventListener('click', () => {
+        this.sound.enabled = !this.sound.enabled;
+        soundBtn.classList.toggle('active', this.sound.enabled);
+        soundBtn.title = this.sound.enabled ? 'الصوت مفعّل' : 'الصوت معطّل';
+        if (this.sound.enabled) this.sound.playTick();
+      });
+
+      // Snow Toggle
+      const snowBtn = document.getElementById('btn-toggle-snow');
+      snowBtn.addEventListener('click', () => {
+        const isSnow = this.snow.toggle();
+        snowBtn.classList.toggle('active', isSnow);
+      });
+
+      // Daily Log: Prayers
+      document.querySelectorAll('.prayer-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const prayer = btn.dataset.prayer;
+          const day = this.getDay(this.currentDay);
+          day.prayers[prayer] = !day.prayers[prayer];
+          this.sound.playTick();
+          this.onDayDataChanged();
+        });
+      });
+
+      // Daily Log: Quran Checkbox
+      const quranCheck = document.getElementById('quran-checkbox-container');
+      quranCheck.addEventListener('click', () => {
+        const day = this.getDay(this.currentDay);
+        day.quran.read = !day.quran.read;
+        this.sound.playTick();
+        this.onDayDataChanged();
+      });
+
+      const quranPages = document.getElementById('quran-pages-input');
+      quranPages.addEventListener('input', (e) => {
+        const day = this.getDay(this.currentDay);
+        day.quran.pages = e.target.value;
+        this.debounceSave();
+      });
+
+      // Daily Log: Self-Discipline (الابتعاد عن الذنوب)
+      document.querySelectorAll('.discipline-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          const status = opt.dataset.status;
+          const day = this.getDay(this.currentDay);
+          day.discipline = day.discipline === status ? null : status;
+          this.sound.playTick();
+          this.onDayDataChanged();
+        });
+      });
+
+      // Daily Log: Rating 1 to 10
+      document.querySelectorAll('.rating-circle').forEach(circle => {
+        circle.addEventListener('click', () => {
+          const rate = parseInt(circle.dataset.rate, 10);
+          const day = this.getDay(this.currentDay);
+          day.rating = day.rating === rate ? null : rate;
+          this.sound.playTick();
+          this.onDayDataChanged();
+        });
+      });
+
+      // Daily Log: Satisfaction
+      document.querySelectorAll('.satisfaction-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.dataset.value;
+          const day = this.getDay(this.currentDay);
+          day.satisfaction = day.satisfaction === val ? null : val;
+          this.sound.playTick();
+          this.onDayDataChanged();
+        });
+      });
+
+      // Daily Log: Weather
+      document.querySelectorAll('.weather-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          const w = pill.dataset.weather;
+          const day = this.getDay(this.currentDay);
+          day.weather = day.weather === w ? null : w;
+          this.sound.playTick();
+          this.onDayDataChanged();
+        });
+      });
+
+      // Daily Log: Journal textareas with auto-resize
+      const textareas = ['journal_today', 'journal_goal', 'journal_feelings', 'journal_honest'];
+      textareas.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', (e) => {
+            const day = this.getDay(this.currentDay);
+            day[id] = e.target.value;
+            this.autoResizeTextarea(el);
+            this.debounceSave();
+          });
+        }
+      });
+
+      // Add Habit Button
+      document.getElementById('btn-add-custom-habit').addEventListener('click', () => {
+        this.openAddHabitModal();
+      });
+
+      // Matrix Month Filter Chips
+      document.querySelectorAll('.month-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('.month-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          this.activeMonthFilter = chip.dataset.month;
+          this.renderMatrixGrid();
+        });
+      });
+
+      // Settings: Export Data
+      document.getElementById('btn-export-json').addEventListener('click', () => {
+        this.exportDataJSON();
+      });
+
+      // Settings: Import Data
+      const importInput = document.getElementById('input-import-json');
+      document.getElementById('btn-import-trigger').addEventListener('click', () => {
+        importInput.click();
+      });
+      importInput.addEventListener('change', (e) => {
+        this.importDataJSON(e.target.files[0]);
+      });
+
+      // Settings: Start Date picker
+      const startDateInput = document.getElementById('settings-start-date');
+      startDateInput.value = this.data.startDate || new Date().toISOString().split('T')[0];
+      startDateInput.addEventListener('change', (e) => {
+        this.data.startDate = e.target.value;
+        this.saveData();
+        this.render();
+      });
+
+      // Settings: Reset All Data
+      document.getElementById('btn-reset-all').addEventListener('click', () => {
+        this.openConfirmModal(
+          'تصفير وحذف جميع البيانات',
+          'هل أنت متأكد تماماً من رغبتك في تصفير كل بيانات الـ Winter Arc لجميع الأيام؟ لا يمكن التراجع عن هذه الخطوة إلا إذا كنت قد حمّلت نسخة احتياطية.',
+          () => {
+            this.data = this.getDefaultData();
+            this.saveData();
+            this.setDay(1);
+            this.render();
+          }
+        );
+      });
+
+      // Settings: Demo Data Generator
+      const demoBtn = document.getElementById('btn-load-demo-data');
+      if (demoBtn) {
+        demoBtn.addEventListener('click', () => {
+          this.openConfirmModal(
+            'تحميل بيانات تجريبية للمعاينة',
+            'سيتم ملء أول 30 يوماً بنسب وإنجازات متنوعة (مثلاً 70%، 85%، 100%، 40%) لترى كيف تبدو الخريطة والمربعات السائلة. يمكنك التصفير في أي وقت.',
+            () => {
+              this.loadDemoData();
+            }
+          );
+        });
+      }
+
+      // Settings: Print Day
+      document.getElementById('btn-print-day').addEventListener('click', () => {
+        window.print();
+      });
+
+      // Modal Close
+      this.modalCancelBtn.addEventListener('click', () => {
+        this.closeModal();
+      });
+      this.modalOverlay.addEventListener('click', (e) => {
+        if (e.target === this.modalOverlay) this.closeModal();
+      });
+    }
+
+    autoResizeTextarea(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.max(95, el.scrollHeight) + 'px';
+    }
+
+    // Debounced Auto-save
+    debounceSave() {
+      clearTimeout(this.saveDebounceTimer);
+      this.saveDebounceTimer = setTimeout(() => {
+        this.saveData(true);
+      }, 350);
+    }
+
+    // Called when any task or habit changes
+    onDayDataChanged() {
+      this.calculatePercentage(this.currentDay);
+      this.saveData(true);
+      this.renderDailyView();
+      this.renderTopStats();
+    }
+
+    // Tab Switcher
+    switchTab(tab) {
+      this.activeTab = tab;
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+      });
+
+      this.viewDaily.classList.toggle('active', tab === 'daily');
+      this.viewMatrix.classList.toggle('active', tab === 'matrix');
+      this.viewSettings.classList.toggle('active', tab === 'settings');
+
+      if (tab === 'matrix') {
+        this.renderMatrixView();
+      } else if (tab === 'daily') {
+        this.renderDailyView();
+      }
+    }
+
+    // Set Active Day
+    setDay(dayNum) {
+      this.currentDay = Math.min(Math.max(dayNum, 1), TOTAL_DAYS);
+      this.renderTopStats();
+      this.renderDailyView();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Main Render Routine
+    render() {
+      this.renderTopStats();
+      this.renderDailyView();
+      if (this.activeTab === 'matrix') {
+        this.renderMatrixView();
+      }
+    }
+
+    // Render Top Banner & Stats
+    renderTopStats() {
+      const percent = this.calculatePercentage(this.currentDay);
+      const stats = this.getGlobalStats();
+
+      // Badge
+      this.currentDayBadgeTitle.textContent = `اليوم (${this.currentDay})`;
+
+      // Date calculation
+      const startDate = new Date(this.data.startDate);
+      const targetDate = new Date(startDate);
+      targetDate.setDate(startDate.getDate() + (this.currentDay - 1));
+      
+      const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      this.currentDayDate.textContent = targetDate.toLocaleDateString('ar-EG', dateOptions);
+
+      // Top Progress Bar
+      this.topProgressBar.style.width = `${percent}%`;
+      this.topProgressText.textContent = `${percent}%`;
+
+      // Streak
+      this.streakCountDisplay.textContent = `${stats.currentStreak} أيام`;
+    }
+
+    // Render View 1: Daily Journal
+    renderDailyView() {
+      const day = this.getDay(this.currentDay);
+
+      // 1. Prayers
+      document.querySelectorAll('.prayer-btn').forEach(btn => {
+        const prayer = btn.dataset.prayer;
+        const isChecked = day.prayers && day.prayers[prayer];
+        btn.classList.toggle('checked', !!isChecked);
+        const statusBox = btn.querySelector('.check-status');
+        if (statusBox) statusBox.textContent = isChecked ? '✓' : '';
+      });
+
+      // 2. Quran
+      const quranBox = document.getElementById('quran-custom-checkbox');
+      if (quranBox) {
+        quranBox.classList.toggle('checked', !!(day.quran && day.quran.read));
+        quranBox.textContent = (day.quran && day.quran.read) ? '✓' : '';
+      }
+      const quranPages = document.getElementById('quran-pages-input');
+      if (quranPages) {
+        quranPages.value = (day.quran && day.quran.pages) ? day.quran.pages : '';
+      }
+
+      // 3. Discipline
+      document.querySelectorAll('.discipline-option').forEach(opt => {
+        const status = opt.dataset.status;
+        opt.classList.remove('selected-positive', 'selected-negative');
+        if (day.discipline === status) {
+          if (status === 'adhered') opt.classList.add('selected-positive');
+          if (status === 'fallen') opt.classList.add('selected-negative');
+        }
+      });
+
+      // 4. Custom Habits List
+      this.renderHabitsList(day);
+
+      // 5. Rating from 1 to 10
+      document.querySelectorAll('.rating-circle').forEach(circle => {
+        const rate = parseInt(circle.dataset.rate, 10);
+        circle.classList.toggle('active', day.rating === rate);
+      });
+
+      // 6. Satisfaction
+      document.querySelectorAll('.satisfaction-btn').forEach(btn => {
+        btn.classList.toggle('active', day.satisfaction === btn.dataset.value);
+      });
+
+      // 7. Weather
+      document.querySelectorAll('.weather-pill').forEach(pill => {
+        pill.classList.toggle('active', day.weather === pill.dataset.weather);
+      });
+
+      // 8. Textareas
+      const textareas = ['journal_today', 'journal_goal', 'journal_feelings', 'journal_honest'];
+      textareas.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.value = day[id] || '';
+          this.autoResizeTextarea(el);
+        }
+      });
+    }
+
+    // Render Habits List dynamically
+    renderHabitsList(day) {
+      const container = document.getElementById('habits-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      this.data.customHabits.forEach(habit => {
+        const isDone = !!(day.habits && day.habits[habit.id]);
+        const card = document.createElement('div');
+        card.className = `habit-card ${isDone ? 'completed' : ''}`;
+        card.innerHTML = `
+          <div class="habit-info">
+            <span class="habit-icon">${habit.icon || '⚡'}</span>
+            <div>
+              <div class="habit-name">${habit.label}</div>
+              <div class="habit-category">${habit.category || 'Winter Arc'}</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div class="custom-checkbox ${isDone ? 'checked' : ''}">${isDone ? '✓' : ''}</div>
+            <button class="btn-delete-habit" title="حذف العادة" style="background:none; border:none; color: var(--text-muted); cursor:pointer; font-size: 0.9rem; padding: 0.2rem;">✕</button>
+          </div>
+        `;
+
+        // Checkbox click
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.btn-delete-habit')) return;
+          if (!day.habits) day.habits = {};
+          day.habits[habit.id] = !day.habits[habit.id];
+          this.sound.playTick();
+          this.onDayDataChanged();
+        });
+
+        // Delete button
+        const delBtn = card.querySelector('.btn-delete-habit');
+        if (delBtn) {
+          delBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.openConfirmModal('حذف العادة', `هل تريد حذف عادة "${habit.label}"؟`, () => {
+              this.data.customHabits = this.data.customHabits.filter(h => h.id !== habit.id);
+              this.saveData();
+              this.renderDailyView();
+              this.renderTopStats();
+            });
+          });
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+    // Render View 2: 180-Day Matrix
+    renderMatrixView() {
+      const stats = this.getGlobalStats();
+
+      document.getElementById('stat-completed-days').textContent = stats.completedDays;
+      document.getElementById('stat-streak').textContent = `${stats.currentStreak} أيام`;
+      document.getElementById('stat-avg-percent').textContent = `${stats.avgPercent}%`;
+      document.getElementById('stat-arc-progress').textContent = `${stats.overallArcProgress}%`;
+
+      this.renderMatrixGrid();
+    }
+
+    // Render Matrix Grid of 180 Boxes with Liquid Animation
+    renderMatrixGrid() {
+      const grid = document.getElementById('matrix-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      let start = 1;
+      let end = TOTAL_DAYS;
+
+      if (this.activeMonthFilter !== 'all') {
+        const monthNum = parseInt(this.activeMonthFilter, 10);
+        start = (monthNum - 1) * 30 + 1;
+        end = monthNum * 30;
+      }
+
+      const fragment = document.createDocumentFragment();
+      const fillElements = [];
+
+      for (let i = start; i <= end; i++) {
+        const day = this.getDay(i);
+        const percent = day.percent || 0;
+
+        let tierClass = 'tier-zero';
+        if (percent > 0 && percent < 50) tierClass = 'tier-low';
+        else if (percent >= 50 && percent < 80) tierClass = 'tier-mid';
+        else if (percent >= 80 && percent < 100) tierClass = 'tier-high';
+        else if (percent === 100) tierClass = 'tier-perfect';
+
+        const isCurrent = i === this.currentDay;
+
+        const box = document.createElement('div');
+        box.className = `grid-box ${tierClass} ${isCurrent ? 'current-day-highlight' : ''}`;
+        box.dataset.day = i;
+        box.dataset.percent = percent;
+
+        box.innerHTML = `
+          <div class="box-fill" style="height: 0%;"></div>
+          <div class="box-top-row">
+            <span class="box-day-num">يوم ${i}</span>
+            <span>${percent === 100 ? '⭐' : ''}</span>
+          </div>
+          <div class="box-percent-badge">${percent > 0 ? percent + '%' : '0%'}</div>
+        `;
+
+        const fillEl = box.querySelector('.box-fill');
+        fillElements.push({ el: fillEl, targetHeight: percent });
+
+        // Click to navigate directly to that day
+        box.addEventListener('click', () => {
+          this.setDay(i);
+          this.switchTab('daily');
+          this.sound.playTick();
+        });
+
+        // Tooltip hover
+        box.addEventListener('mouseenter', (e) => {
+          this.showTooltip(e, i, day, percent);
+        });
+
+        box.addEventListener('mouseleave', () => {
+          this.hideTooltip();
+        });
+
+        box.addEventListener('mousemove', (e) => {
+          this.moveTooltip(e);
+        });
+
+        fragment.appendChild(box);
+      }
+
+      grid.appendChild(fragment);
+
+      // Trigger smooth rising liquid animation for the boxes
+      requestAnimationFrame(() => {
+        fillElements.forEach((item, idx) => {
+          setTimeout(() => {
+            if (item.el) {
+              item.el.style.height = `${item.targetHeight}%`;
+            }
+          }, Math.min(idx * 8, 400));
+        });
+      });
+    }
+
+    // Tooltip Handlers
+    showTooltip(e, dayNum, day, percent) {
+      if (!this.tooltip) return;
+
+      const startDate = new Date(this.data.startDate);
+      const targetDate = new Date(startDate);
+      targetDate.setDate(startDate.getDate() + (dayNum - 1));
+      const dateStr = targetDate.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
+
+      let prayersCount = 0;
+      if (day.prayers) {
+        Object.values(day.prayers).forEach(v => { if (v) prayersCount++; });
+      }
+
+      this.tooltip.innerHTML = `
+        <div class="tooltip-day">اليوم ${dayNum} (${dateStr})</div>
+        <div class="tooltip-row"><span>نسبة الإنجاز:</span><span class="val">${percent}%</span></div>
+        <div class="tooltip-row"><span>الصلوات:</span><span class="val">${prayersCount}/5</span></div>
+        <div class="tooltip-row"><span>القرآن:</span><span class="val">${day.quran && day.quran.read ? 'أُنجز ✓' : 'لم يقرأ'}</span></div>
+        <div class="tooltip-row"><span>تقييم اليوم:</span><span class="val">${day.rating ? day.rating + '/10' : '-'}</span></div>
+      `;
+
+      this.moveTooltip(e);
+      this.tooltip.classList.add('show');
+    }
+
+    moveTooltip(e) {
+      if (!this.tooltip) return;
+      const x = e.clientX + 14;
+      const y = e.clientY + 14;
+      this.tooltip.style.left = `${Math.min(x, window.innerWidth - 200)}px`;
+      this.tooltip.style.top = `${Math.min(y, window.innerHeight - 150)}px`;
+    }
+
+    hideTooltip() {
+      if (!this.tooltip) return;
+      this.tooltip.classList.remove('show');
+    }
+
+    // Quick Jump to Day Modal
+    openJumpDayModal() {
+      this.modalTitle.textContent = 'الانتقال المباشر لأي يوم';
+      this.modalBody.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+          <label style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 700;">أدخل رقم اليوم (من 1 إلى 180):</label>
+          <input type="number" id="modal-jump-input" class="text-input-field" min="1" max="180" value="${this.currentDay}" style="width: 100%; font-size: 1.1rem; text-align: center;" />
+        </div>
+      `;
+      this.modalConfirmBtn.textContent = 'انتقل';
+      this.modalConfirmBtn.onclick = () => {
+        const val = parseInt(document.getElementById('modal-jump-input').value, 10);
+        if (val >= 1 && val <= TOTAL_DAYS) {
+          this.setDay(val);
+          this.closeModal();
+        }
+      };
+      this.modalOverlay.classList.add('active');
+    }
+
+    // Add Habit Modal
+    openAddHabitModal() {
+      this.modalTitle.textContent = 'إضافة عادة جديدة لـ Winter Arc';
+      this.modalBody.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 700; margin-bottom: 0.35rem; display: block;">اسم العادة:</label>
+            <input type="text" id="modal-habit-name" class="text-input-field" style="width: 100%;" placeholder="مثال: الاستحمام بماء بارد، كودينج ساعتين..." />
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 700; margin-bottom: 0.35rem; display: block;">أيقونة العادة (إيموجي):</label>
+            <input type="text" id="modal-habit-icon" class="text-input-field" style="width: 100%;" value="⚡" />
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 700; margin-bottom: 0.35rem; display: block;">التصنيف:</label>
+            <select id="modal-habit-cat" class="text-input-field" style="width: 100%;">
+              <option value="الجسد">الجسد واللياقة</option>
+              <option value="العقل">العقل والتعلم</option>
+              <option value="الانضباط">الانضباط والروح</option>
+              <option value="المستقبل">العمل والمستقبل</option>
+            </select>
+          </div>
+        </div>
+      `;
+
+      this.modalConfirmBtn.textContent = 'إضافة العادة';
+      this.modalConfirmBtn.onclick = () => {
+        const name = document.getElementById('modal-habit-name').value.trim();
+        const icon = document.getElementById('modal-habit-icon').value.trim() || '⚡';
+        const cat = document.getElementById('modal-habit-cat').value;
+        if (!name) return;
+
+        const id = 'habit_' + Date.now();
+        this.data.customHabits.push({ id, label: name, category: cat, icon });
+        this.saveData();
+        this.closeModal();
+        this.renderDailyView();
+        this.renderTopStats();
+      };
+
+      this.modalOverlay.classList.add('active');
+    }
+
+    openConfirmModal(title, message, onConfirm) {
+      this.modalTitle.textContent = title;
+      this.modalBody.innerHTML = `<p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">${message}</p>`;
+      this.modalConfirmBtn.textContent = 'تأكيد';
+      this.modalConfirmBtn.onclick = () => {
+        onConfirm();
+        this.closeModal();
+      };
+      this.modalOverlay.classList.add('active');
+    }
+
+    closeModal() {
+      this.modalOverlay.classList.remove('active');
+    }
+
+    // Load Demo Data for preview
+    loadDemoData() {
+      const demoPercentages = [100, 85, 70, 75, 90, 100, 60, 80, 100, 70, 85, 90, 100, 50, 70, 100, 85, 90, 70, 100, 80, 65, 75, 100, 90, 85, 70, 100, 95, 100];
+      for (let i = 1; i <= demoPercentages.length; i++) {
+        const pct = demoPercentages[i - 1];
+        const day = this.getDay(i);
+        day.percent = pct;
+        day.rating = Math.min(10, Math.max(5, Math.round(pct / 10)));
+        day.satisfaction = pct >= 80 ? 'yes' : (pct >= 60 ? 'somewhat' : 'no');
+        day.discipline = pct >= 70 ? 'adhered' : 'fallen';
+        day.prayers = {
+          fajr: pct >= 50,
+          dhuhr: pct >= 60,
+          asr: pct >= 70,
+          maghrib: pct >= 80,
+          isha: pct >= 90
+        };
+        day.quran = { read: pct >= 60, pages: '4 صفحات', note: 'تدبر سورة الكهف' };
+        day.journal_today = `اليوم ${i}: التزام قوي بتمارين الـ Winter Arc، تقدم ملحوظ في التركيز والصلابة الذهنية.`;
+        day.journal_goal = 'أنجزت ساعتين عمل عميق ورفعت أوزان التمرين.';
+        day.journal_feelings = 'شعور بالثقة والانتصار الداخلي.';
+        day.journal_honest = 'الرحلة بدأت تظهر ثمارها، الاستمرارية هي المفتاح الوحيد.';
+      }
+      this.saveData();
+      this.render();
+      this.switchTab('matrix');
+      this.sound.playChime();
+    }
+
+    // Export Data as JSON
+    exportDataJSON() {
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.data, null, 2));
+      const downloadAnchor = document.createElement('a');
+      const dateStr = new Date().toISOString().split('T')[0];
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', `winter_arc_backup_${dateStr}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    // Import Data from JSON
+    importDataJSON(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed && typeof parsed === 'object') {
+            this.data = parsed;
+            this.saveData();
+            this.setDay(1);
+            this.render();
+            alert('تم استرجاع النسخة الاحتياطية لـ Winter Arc بنجاح!');
+          }
+        } catch (err) {
+          alert('الملف المحدد غير صالح. يرجى اختيار ملف JSON صحيح.');
+        }
+      };
+      reader.readAsText(file);
+    }
+  }
+
+  // Initialize on DOM Ready
+  window.addEventListener('DOMContentLoaded', () => {
+    window.winterArcApp = new WinterArcApp();
+    initPWA();
+  });
+
+  // PWA Support & Service Worker Registration
+  function initPWA() {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then((reg) => {
+          console.log('Winter Arc ServiceWorker registered:', reg.scope);
+        }).catch((err) => {
+          console.warn('Winter Arc ServiceWorker registration failed:', err);
+        });
+      });
+    }
+
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('btn-install-pwa');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (installBtn) {
+        installBtn.style.display = 'inline-flex';
+      }
+    });
+
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          if (outcome === 'accepted') {
+            installBtn.style.display = 'none';
+          }
+          deferredPrompt = null;
+        } else {
+          alert('لتثبيت Winter Arc كأيقونة تطبيق:\n• على الكمبيوتر (Chrome/Edge): اضغط على أيقونة التثبيت (Install) التي تظهر في نهاية شريط الرابط بالأعلى.\n• على آيفون (Safari): اضغط زر المشاركة (Share) ثم اختر "إضافة إلى الشاشة الرئيسية (Add to Home Screen)".\n• على أندرويد: اضغط القائمة (⋮) ثم "تثبيت التطبيق".');
+        }
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      if (installBtn) installBtn.style.display = 'none';
+    });
+  }
+})();

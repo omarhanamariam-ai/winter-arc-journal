@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WINTER ARC | يوميّات الـ 180 يوم</title>
+  <meta name="description" content="منصة Winter Arc الشخصية لتتبع ومحاسبة النفس يومياً لمدة 6 أشهر بدون إنترنت" />
+  
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <meta name="theme-color" content="#06090e" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Winter Arc" />
+
+  <!-- Local Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Ambient FX Canvases -->
+  <canvas id="snow-canvas"></canvas>
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Auto-save notification pill -->
+  <div id="autosave-pill" class="autosave-pill">
+    <span>✓ تم الحفظ تلقائياً في جهازك</span>
+  </div>
+
+  <!-- Interactive Grid Tooltip -->
+  <div id="grid-tooltip" class="grid-tooltip"></div>
+
+  <!-- App Wrapper -->
+  <div class="app-container">
+
+    <!-- Top Header -->
+    <header class="main-header glass-panel">
+      <div class="brand-wrapper">
+        <div class="brand-icon">❄️</div>
+        <div class="brand-text">
+          <h1>WINTER ARC <span class="highlight">180 DAYS</span></h1>
+          <p class="brand-tagline">سجل ما فعلت، ما شعرت، وما تعلمته في رحلة التحول</p>
+        </div>
+      </div>
+
+      <!-- Main Navigation Tabs -->
+      <nav class="nav-tabs">
+        <button class="nav-tab-btn active" data-tab="daily">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          اليوميّات وجدول اليوم
+        </button>
+        <button class="nav-tab-btn" data-tab="matrix">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          خريطة الـ 180 يوم والنسب
+        </button>
+        <button class="nav-tab-btn" data-tab="settings">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          النسخ الاحتياطي والإعدادات
+        </button>
+      </nav>
+
+      <!-- Quick Action Controls -->
+      <div class="header-actions">
+        <button id="btn-install-pwa" class="primary-btn" style="padding: 0.45rem 0.85rem; font-size: 0.78rem;" title="تثبيت التطبيق على الشاشة الرئيسية كأيقونة">
+          <span>📲</span>
+          <span>تثبيت التطبيق</span>
+        </button>
+        <button id="btn-toggle-sound" class="icon-btn active" title="تبديل مؤثرات الصوت (Web Audio)">
+          🔊
+        </button>
+        <button id="btn-toggle-snow" class="icon-btn active" title="تبديل تساقط الثلج (Winter Arc Ambient)">
+          🌨️
+        </button>
+      </div>
+    </header>
+
+    <!-- Top Banner: Day Navigation & Live Progress -->
+    <section class="stats-banner glass-panel">
+      <!-- Day Switcher Controls -->
+      <div class="day-switcher">
+        <button id="btn-prev-day" class="btn-day-nav" title="اليوم السابق">➔</button>
+        <div class="current-day-badge">
+          <span id="current-day-badge-title" class="badge-title">اليوم (1)</span>
+          <span id="current-day-date" class="badge-date">الأحد، 15 نوفمبر</span>
+        </div>
+        <button id="btn-next-day" class="btn-day-nav" title="اليوم التالي">⬅</button>
+        <button id="btn-jump-today" class="btn-jump-today">اليوم الفعلي 📍</button>
+      </div>
+
+      <!-- Real-Time Progress Bar -->
+      <div class="top-progress-section">
+        <div class="progress-header-info">
+          <span class="label">إنجاز مهام اليوم:</span>
+          <span id="top-progress-text" class="value">0%</span>
+        </div>
+        <div class="bar-track">
+          <div id="top-progress-bar" class="bar-fill"></div>
+        </div>
+      </div>
+
+      <!-- Quick Streak Counter -->
+      <div class="quick-streaks">
+        <div class="streak-pill">
+          <span class="icon">🔥</span>
+          <div class="data">
+            <span id="streak-count-display" class="num">0 أيام</span>
+            <span class="title">سلسلة الالتزام المتواصلة</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 1: DAILY JOURNAL & HABIT TRACKER (MATCHING USER'S PHYSICAL SHEET)
+         ==================================================================== -->
+    <main id="view-daily" class="view-container active">
+      <div class="journal-layout">
+
+        <!-- RIGHT COLUMN: التدوين ومحاسبة النفس الصادقة -->
+        <section class="journal-column">
+          <div class="section-box glass-panel">
+            <div class="section-header">
+              <h2 class="section-title">
+                <span>📖</span>
+                يومي اليوم (التدوين والمحاسبة)
+              </h2>
+              <span class="section-subtitle">سجل ما فعلت، ما شعرت، وما تعلمته</span>
+            </div>
+
+            <!-- Prompt 1: أنا النهارده -->
+            <div class="journal-card">
+              <div class="journal-prompt-header">
+                <span class="journal-prompt-icon">✍️</span>
+                <span class="journal-prompt-title">أنا النهارده...</span>
+              </div>
+              <p class="journal-prompt-guide">
+                اكتب وصفاً دقيقاً ليومك: مين كان واقف معاك؟ وإيه اللي حصل وكان سبب؟ إيه اللي حسيت بيه؟ وإيه اللي خلاك تكمل في طريقك؟
+              </p>
+              <textarea id="journal_today" class="journal-textarea" placeholder="ابدأ الكتابة هنا بصدق..."></textarea>
+            </div>
+
+            <!-- Prompt 2: إيه اللي قربني وإيه اللي عطلني -->
+            <div class="journal-card">
+              <div class="journal-prompt-header">
+                <span class="journal-prompt-icon">🎯</span>
+                <span class="journal-prompt-title">إيه اللي عملته النهارده وقرّبني من هدفي؟ وإيه اللي عطلني؟</span>
+              </div>
+              <p class="journal-prompt-guide">
+                رصد المكاسب الصغيرة التي صنعت الفارق، وتشخيص المشتتات أو العقبات لتجنبها غداً.
+              </p>
+              <textarea id="journal_goal" class="journal-textarea" placeholder="ما الذي دفعك للأمام؟ وما هي نقطة التعطيل اليوم؟"></textarea>
+            </div>
+
+            <!-- Prompt 3: إحساسي وأنا ماشي في الطريق -->
+            <div class="journal-card">
+              <div class="journal-prompt-header">
+                <span class="journal-prompt-icon">🧭</span>
+                <span class="journal-prompt-title">إيه إحساسي وأنا ماشي في الطريق؟</span>
+              </div>
+              <p class="journal-prompt-guide">
+                راقب عقليتك: هل تشعر بالصبر؟ التعب؟ اليقين؟ الفخر بالثبات رغم الصعوبات؟
+              </p>
+              <textarea id="journal_feelings" class="journal-textarea" placeholder="صف الحالة الشعورية والذهنية لرحلتك اليوم..."></textarea>
+            </div>
+
+            <!-- Prompt 4: احكي لنفسك بصدق -->
+            <div class="journal-card">
+              <div class="journal-prompt-header">
+                <span class="journal-prompt-icon">🤍</span>
+                <span class="journal-prompt-title">احكي لنفسك بصدق... إيه اللي جواك النهارده؟</span>
+              </div>
+              <p class="journal-prompt-guide">
+                مساحة حرة بدون أقنعة أو مجاملات — فرغ ذهنك وتحدث مع نفسك بمنتهى الشفافية.
+              </p>
+              <textarea id="journal_honest" class="journal-textarea" placeholder="اكتب كل ما يدور في أعماقك بدون قيود..."></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- LEFT COLUMN: أنا التزمت بإيه النهارده؟ (الأفعال والالتزامات) -->
+        <section class="journal-column">
+          <div class="section-box glass-panel">
+            <div class="section-header">
+              <h2 class="section-title">
+                <span>🛡️</span>
+                أنا التزمت بإيه النهارده؟
+              </h2>
+              <span class="section-subtitle">الأفعال تصنع الرجال • Winter Arc</span>
+            </div>
+
+            <!-- 1. الصلاة -->
+            <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+              <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">🕌 الصلوات الخمس</span>
+              <div class="prayers-grid">
+                <div class="prayer-btn" data-prayer="fajr">
+                  <span class="icon">🌅</span>
+                  <span class="name">الفجر</span>
+                  <div class="check-status"></div>
+                </div>
+                <div class="prayer-btn" data-prayer="dhuhr">
+                  <span class="icon">☀️</span>
+                  <span class="name">الظهر</span>
+                  <div class="check-status"></div>
+                </div>
+                <div class="prayer-btn" data-prayer="asr">
+                  <span class="icon">⛅</span>
+                  <span class="name">العصر</span>
+                  <div class="check-status"></div>
+                </div>
+                <div class="prayer-btn" data-prayer="maghrib">
+                  <span class="icon">🌇</span>
+                  <span class="name">المغرب</span>
+                  <div class="check-status"></div>
+                </div>
+                <div class="prayer-btn" data-prayer="isha">
+                  <span class="icon">🌙</span>
+                  <span class="name">العشاء</span>
+                  <div class="check-status"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. القرآن الكريم -->
+            <div class="quran-box">
+              <div id="quran-checkbox-container" class="custom-checkbox-row">
+                <div class="checkbox-label">
+                  <span>📖</span>
+                  <span>قرأت الورد المحدد اليوم من القرآن</span>
+                </div>
+                <div id="quran-custom-checkbox" class="custom-checkbox"></div>
+              </div>
+              <div class="quran-inputs-row">
+                <input type="text" id="quran-pages-input" class="text-input-field" placeholder="عدد الصفحات / السورة / ملاحظات القراءة..." />
+              </div>
+            </div>
+
+            <!-- 3. الابتعاد عن الذنوب وضبط النفس -->
+            <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+              <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">⚔️ الابتعاد عن الذنوب وضبط النفس</span>
+              <div class="discipline-toggle-group">
+                <div class="discipline-option" data-status="adhered">
+                  <span>🛡️</span>
+                  <span>التزمت اليوم وثبتّ</span>
+                </div>
+                <div class="discipline-option" data-status="fallen">
+                  <span>⚠️</span>
+                  <span>تعثرت وسأنهض فوراً</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. عاداتي الخاصة (Winter Arc Habits) -->
+            <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">⭐ عاداتي اليومية في الـ Winter Arc</span>
+              </div>
+              <div id="habits-container" class="habits-list">
+                <!-- Dynamically populated from JS -->
+              </div>
+              <button id="btn-add-custom-habit" class="btn-add-habit">
+                <span>➕</span>
+                <span>إضافة عادة مخصصة جديدة</span>
+              </button>
+            </div>
+
+            <!-- 5. تقييم اليوم (يومي من 10) -->
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem;">
+              <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">🏆 تقييم اليوم (يومي من 10)</span>
+              <div class="rating-pills">
+                <div class="rating-circle" data-rate="1">1</div>
+                <div class="rating-circle" data-rate="2">2</div>
+                <div class="rating-circle" data-rate="3">3</div>
+                <div class="rating-circle" data-rate="4">4</div>
+                <div class="rating-circle" data-rate="5">5</div>
+                <div class="rating-circle" data-rate="6">6</div>
+                <div class="rating-circle" data-rate="7">7</div>
+                <div class="rating-circle" data-rate="8">8</div>
+                <div class="rating-circle" data-rate="9">9</div>
+                <div class="rating-circle" data-rate="10">10</div>
+              </div>
+            </div>
+
+            <!-- 6. هل أنا راضي عن يومي؟ -->
+            <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+              <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">هل أنا راضي عن يومي؟</span>
+              <div class="satisfaction-row">
+                <button class="satisfaction-btn" data-value="yes">
+                  <span>🏆</span> نعم راضٍ
+                </button>
+                <button class="satisfaction-btn" data-value="somewhat">
+                  <span>⚖️</span> إلى حد ما
+                </button>
+                <button class="satisfaction-btn" data-value="no">
+                  <span>⚡</span> غير راضٍ
+                </button>
+              </div>
+            </div>
+
+            <!-- 7. الطقس النفسي والمقولة -->
+            <div class="weather-mood-row">
+              <div class="weather-options">
+                <div class="weather-pill" data-weather="sunny" title="شمس إنجاز">☀️</div>
+                <div class="weather-pill" data-weather="clear" title="صافي هادئ">🌤️</div>
+                <div class="weather-pill" data-weather="cloudy" title="غائم وتحديات">☁️</div>
+                <div class="weather-pill" data-weather="rainy" title="ممطر وصعب">🌧️</div>
+                <div class="weather-pill" data-weather="storm" title="عاصف وقاسٍ">⚡</div>
+              </div>
+              <div class="inspirational-quote">
+                "مش مهم النتيجة بقدر السعي وثبات الخطى"
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         VIEW 2: 180-DAY MATRIX & LIQUID PROGRESS GRID
+         ==================================================================== -->
+    <main id="view-matrix" class="view-container">
+      <div class="matrix-hero">
+
+        <!-- Top Overview Stats -->
+        <div class="overview-grid">
+          <div class="stat-card glass-panel">
+            <div class="stat-card-icon">🎯</div>
+            <div class="stat-card-info">
+              <span id="stat-completed-days" class="stat-card-value">0</span>
+              <span class="stat-card-title">أيام تجاوزت نسبة 70%</span>
+            </div>
+          </div>
+
+          <div class="stat-card glass-panel">
+            <div class="stat-card-icon">🔥</div>
+            <div class="stat-card-info">
+              <span id="stat-streak" class="stat-card-value">0 أيام</span>
+              <span class="stat-card-title">سلسلة الالتزام الحالية</span>
+            </div>
+          </div>
+
+          <div class="stat-card glass-panel">
+            <div class="stat-card-icon">📈</div>
+            <div class="stat-card-info">
+              <span id="stat-avg-percent" class="stat-card-value">0%</span>
+              <span class="stat-card-title">متوسط الالتزام للأيام المسجلة</span>
+            </div>
+          </div>
+
+          <div class="stat-card glass-panel">
+            <div class="stat-card-icon">❄️</div>
+            <div class="stat-card-info">
+              <span id="stat-arc-progress" class="stat-card-value">0%</span>
+              <span class="stat-card-title">إجمالي إنجاز رحلة الـ 6 أشهر</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter & Legend Bar -->
+        <div class="matrix-filter-bar glass-panel">
+          <div class="month-chips">
+            <button class="month-chip active" data-month="all">الـ 180 يوم كاملة</button>
+            <button class="month-chip" data-month="1">الشهر 1 (1 - 30)</button>
+            <button class="month-chip" data-month="2">الشهر 2 (31 - 60)</button>
+            <button class="month-chip" data-month="3">الشهر 3 (61 - 90)</button>
+            <button class="month-chip" data-month="4">الشهر 4 (91 - 120)</button>
+            <button class="month-chip" data-month="5">الشهر 5 (121 - 150)</button>
+            <button class="month-chip" data-month="6">الشهر 6 (151 - 180)</button>
+          </div>
+
+          <!-- Color Legend -->
+          <div class="matrix-legend">
+            <div class="legend-item"><div class="legend-dot dot-0"></div> 0% لم يبدأ</div>
+            <div class="legend-item"><div class="legend-dot dot-low"></div> 1% - 49%</div>
+            <div class="legend-item"><div class="legend-dot dot-mid"></div> 50% - 79%</div>
+            <div class="legend-item"><div class="legend-dot dot-high"></div> 80% - 99%</div>
+            <div class="legend-item"><div class="legend-dot dot-perfect"></div> 100% يوم مثالي ⭐</div>
+          </div>
+        </div>
+
+        <!-- The 180-Day Grid (Dynamic liquid fill) -->
+        <div class="glass-panel" style="overflow: hidden;">
+          <div id="matrix-grid" class="matrix-grid">
+            <!-- Dynamically injected via JavaScript with liquid animated fill -->
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         VIEW 3: SETTINGS & BACKUP (100% OFFLINE LOCAL STORAGE)
+         ==================================================================== -->
+    <main id="view-settings" class="view-container">
+      <div class="settings-grid">
+
+        <!-- Export & Backup Card -->
+        <div class="action-card glass-panel">
+          <div class="section-header">
+            <h2 class="section-title">
+              <span>💾</span>
+              النسخ الاحتياطي وحفظ البيانات
+            </h2>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.7;">
+            كل ما تدخله يتم حفظه فورياً داخل متصفحك المحلي (Offline Storage) بدون إنترنت. لضمان عدم ضياع مجهود الـ 6 أشهر أبداً، يمكنك تحميل ملف نسخة احتياطية على جهازك في أي لحظة، أو استرجاعها بنقرة واحدة.
+          </p>
+
+          <div class="action-btn-row">
+            <button id="btn-export-json" class="primary-btn">
+              <span>⬇️</span>
+              تصدير نسخة احتياطية (JSON)
+            </button>
+            <button id="btn-import-trigger" class="secondary-btn">
+              <span>⬆️</span>
+              استرجاع نسخة محفوظة
+            </button>
+            <button id="btn-load-demo-data" class="secondary-btn">
+              <span>✨</span>
+              معاينة ببيانات تجريبية
+            </button>
+            <input type="file" id="input-import-json" accept=".json" style="display: none;" />
+          </div>
+        </div>
+
+        <!-- Arc Preferences Card -->
+        <div class="action-card glass-panel">
+          <div class="section-header">
+            <h2 class="section-title">
+              <span>⚙️</span>
+              تخصيص تاريخ البداية والطباعة
+            </h2>
+          </div>
+          <div>
+            <label style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 700; margin-bottom: 0.45rem; display: block;">
+              تاريخ بدء الـ Winter Arc (اليوم الأول):
+            </label>
+            <input type="date" id="settings-start-date" class="text-input-field" style="width: 100%; max-width: 280px;" />
+          </div>
+
+          <div class="action-btn-row" style="margin-top: 1rem;">
+            <button id="btn-print-day" class="secondary-btn">
+              <span>🖨️</span>
+              طباعة صفحة اليوم الحالي (PDF / ورق)
+            </button>
+            <button id="btn-reset-all" class="danger-btn">
+              <span>🗑️</span>
+              تصفير كل البيانات
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Reusable Modal Overlay -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div class="modal-content glass-panel">
+      <h3 id="modal-title" style="font-size: 1.15rem; font-weight: 800; color: #fff;"></h3>
+      <div id="modal-body"></div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
+        <button id="modal-cancel-btn" class="secondary-btn">إلغاء</button>
+        <button id="modal-confirm-btn" class="primary-btn">تأكيد</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Local Script -->
+  <script src="app.js"></script>
+</body>
+</html>
