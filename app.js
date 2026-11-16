@@ -221,7 +221,6 @@
       this.confetti = new ConfettiEngine('confetti-canvas');
       this.snow = new SnowEngine('snow-canvas');
 
-      this.currentDay = 1;
       this.activeTab = 'daily';
       this.activeMonthFilter = 'all';
       this.saveDebounceTimer = null;
@@ -229,35 +228,75 @@
       // Default Template Schema
       this.data = this.loadData();
       
+      // Auto-Day Progression: calculate today's active day based on start date
+      this.realWorldDay = this.calculateRealWorldDay();
+      this.currentDay = this.realWorldDay;
+
       this.initDOMElements();
       this.bindEvents();
       this.render();
     }
 
-    // Default State Factory
+    // Calculate Real-World Active Day from Start Date
+    calculateRealWorldDay() {
+      try {
+        const start = new Date(this.data.startDate || '2026-11-15');
+        const now = new Date();
+        const startMidnight = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+        const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const diffMs = nowMidnight - startMidnight;
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
+        return Math.min(Math.max(diffDays, 1), TOTAL_DAYS);
+      } catch (e) {
+        return 1;
+      }
+    }
+
+    // Default State Factory (The 12 Iron Pillars of Winter Arc)
     getDefaultData() {
-      const today = new Date().toISOString().split('T')[0];
       return {
-        startDate: today,
+        startDate: '2026-11-15',
         customHabits: [
           { id: 'workout', label: 'تمرين رياضي / جيم (Workout)', category: 'الجسد', icon: '🏋️‍♂️' },
           { id: 'deepwork', label: 'العمل المركز على هدفي (Deep Work)', category: 'المستقبل', icon: '🎯' },
           { id: 'reading', label: 'قراءة وتغذية العقل (30 دقيقة)', category: 'العقل', icon: '📚' },
-          { id: 'water_diet', label: 'شرب 3 لتر مياه + دايت نظيف', category: 'الصحة', icon: '💧' },
-          { id: 'sleep_early', label: 'نوم مبكر واستيقاظ منضبط', category: 'الانضباط', icon: '⏰' }
+          { id: 'water_diet', label: 'شرب 3.5 لتر مياه + دايت نظيف', category: 'الصحة', icon: '💧' },
+          { id: 'sleep_early', label: 'نوم 8 ساعات مبكر واستيقاظ منضبط', category: 'الانضباط', icon: '⏰' },
+          { id: 'ghad_basar', label: 'غض البصر والصفر المطلق في الإباحية', category: 'الانضباط', icon: '⚡' },
+          { id: 'cold_shower', label: 'الاستحمام بماء بارد (انضباط ودوبامين)', category: 'الجسد', icon: '❄️' },
+          { id: 'silence', label: 'الصمت والسكوت (حفظ الطاقة واللسان)', category: 'العقل', icon: '🤫' },
+          { id: 'calories_3500', label: 'احتياجي من السعرات 3500 سعرة', category: 'الجسد', icon: '🥩' },
+          { id: 'protein_target', label: 'احتياج البروتين لبناء العضلات (150g+)', category: 'الجسد', icon: '🍗' },
+          { id: 'no_phone_work', label: 'ممسكش التليفون وأقعد أقلب وأنا بشتغل', category: 'الانضباط', icon: '📵' },
+          { id: 'authentic_self', label: 'أتصرف بطبيعتي بثقة وبدون تصنع', category: 'الهوية', icon: '🐺' }
         ],
         days: {}
       };
     }
 
-    // Load Data from LocalStorage
+    // Load Data from LocalStorage with Zero Data Loss Guarantee
     loadData() {
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
           if (!parsed.days) parsed.days = {};
-          if (!parsed.customHabits) parsed.customHabits = this.getDefaultData().customHabits;
+          if (!parsed.startDate) parsed.startDate = '2026-11-15';
+          
+          const defaultHabits = this.getDefaultData().customHabits;
+          if (!parsed.customHabits || !Array.isArray(parsed.customHabits) || parsed.customHabits.length === 0) {
+            parsed.customHabits = defaultHabits;
+          } else {
+            // Merge missing core pillars while preserving ALL user existing habits
+            const existingLabels = parsed.customHabits.map(h => (h.label || '').toLowerCase());
+            defaultHabits.forEach(defH => {
+              const coreKeyword = defH.id;
+              const alreadyHas = parsed.customHabits.some(h => h.id === coreKeyword || (h.label && h.label.includes(defH.label.split(' ')[0])));
+              if (!alreadyHas) {
+                parsed.customHabits.push(defH);
+              }
+            });
+          }
           return parsed;
         }
       } catch (e) {
@@ -456,12 +495,8 @@
       });
 
       document.getElementById('btn-jump-today').addEventListener('click', () => {
-        const start = new Date(this.data.startDate);
-        const now = new Date();
-        const diffTime = now - start;
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-        const targetDay = Math.min(Math.max(diffDays, 1), TOTAL_DAYS);
-        this.setDay(targetDay);
+        this.realWorldDay = this.calculateRealWorldDay();
+        this.setDay(this.realWorldDay);
         this.sound.playTick();
       });
 
@@ -710,8 +745,24 @@
       // Badge
       this.currentDayBadgeTitle.textContent = `اليوم (${this.currentDay})`;
 
+      // Auto-Day Indicator Badge
+      const autoIndicator = document.getElementById('auto-day-indicator');
+      if (autoIndicator) {
+        if (this.currentDay === this.realWorldDay) {
+          autoIndicator.textContent = '● اليوم الفعلي (تلقائي)';
+          autoIndicator.style.background = 'rgba(16, 185, 129, 0.16)';
+          autoIndicator.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+          autoIndicator.style.color = '#34d399';
+        } else {
+          autoIndicator.textContent = `أرشيف سابق (يوم ${this.currentDay})`;
+          autoIndicator.style.background = 'rgba(245, 158, 11, 0.16)';
+          autoIndicator.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+          autoIndicator.style.color = '#fbbf24';
+        }
+      }
+
       // Date calculation
-      const startDate = new Date(this.data.startDate);
+      const startDate = new Date(this.data.startDate || '2026-11-15');
       const targetDate = new Date(startDate);
       targetDate.setDate(startDate.getDate() + (this.currentDay - 1));
       
@@ -876,23 +927,34 @@
         const percent = day.percent || 0;
 
         let tierClass = 'tier-zero';
-        if (percent > 0 && percent < 50) tierClass = 'tier-low';
-        else if (percent >= 50 && percent < 80) tierClass = 'tier-mid';
-        else if (percent >= 80 && percent < 100) tierClass = 'tier-high';
+        if (percent > 0 && percent < 50) tierClass = 'tier-danger';
+        else if (percent >= 50 && percent < 70) tierClass = 'tier-low';
+        else if (percent >= 70 && percent < 90) tierClass = 'tier-warrior';
+        else if (percent >= 90 && percent < 100) tierClass = 'tier-royal';
         else if (percent === 100) tierClass = 'tier-perfect';
 
-        const isCurrent = i === this.currentDay;
+        const isCurrentView = i === this.currentDay;
+        const isRealToday = i === this.realWorldDay;
+
+        let iconBadge = '';
+        if (percent === 100) {
+          iconBadge = '<span class="box-crown-icon" title="يوم أسطوري مكتمل 100%">👑</span>';
+        } else if (percent >= 70) {
+          iconBadge = '<span title="شعلة المحاربين (70%+)">🔥</span>';
+        } else if (percent > 0 && percent < 50) {
+          iconBadge = '<span title="منطقة الخطر (<50%)">⚠️</span>';
+        }
 
         const box = document.createElement('div');
-        box.className = `grid-box ${tierClass} ${isCurrent ? 'current-day-highlight' : ''}`;
+        box.className = `grid-box ${tierClass} ${isCurrentView ? 'current-day-highlight' : ''}`;
         box.dataset.day = i;
         box.dataset.percent = percent;
 
         box.innerHTML = `
           <div class="box-fill" style="height: 0%;"></div>
           <div class="box-top-row">
-            <span class="box-day-num">يوم ${i}</span>
-            <span>${percent === 100 ? '⭐' : ''}</span>
+            <span class="box-day-num">${isRealToday ? '📍 اليوم ' + i : 'يوم ' + i}</span>
+            ${iconBadge}
           </div>
           <div class="box-percent-badge">${percent > 0 ? percent + '%' : '0%'}</div>
         `;

@@ -83,11 +83,14 @@
       <div class="day-switcher">
         <button id="btn-prev-day" class="btn-day-nav" title="اليوم السابق">➔</button>
         <div class="current-day-badge">
-          <span id="current-day-badge-title" class="badge-title">اليوم (1)</span>
+          <div class="badge-title-row">
+            <span id="current-day-badge-title" class="badge-title">اليوم (1)</span>
+            <span id="auto-day-indicator" class="auto-day-indicator" title="تحديد اليوم تلقائياً بناءً على التاريخ">● اليوم التلقائي</span>
+          </div>
           <span id="current-day-date" class="badge-date">الأحد، 15 نوفمبر</span>
         </div>
         <button id="btn-next-day" class="btn-day-nav" title="اليوم التالي">⬅</button>
-        <button id="btn-jump-today" class="btn-jump-today">اليوم الفعلي 📍</button>
+        <button id="btn-jump-today" class="btn-jump-today" title="الانتقال فوراً لليوم الفعلي الحالي">اليوم الفعلي 📍</button>
       </div>
 
       <!-- Real-Time Progress Bar -->
@@ -130,52 +133,52 @@
               <span class="section-subtitle">سجل ما فعلت، ما شعرت، وما تعلمته</span>
             </div>
 
-            <!-- Prompt 1: أنا النهارده -->
+            <!-- Prompt 1: مواجهة الوحش والدوبامين الرخيص -->
             <div class="journal-card">
               <div class="journal-prompt-header">
-                <span class="journal-prompt-icon">✍️</span>
-                <span class="journal-prompt-title">أنا النهارده...</span>
+                <span class="journal-prompt-icon">⚔️</span>
+                <span class="journal-prompt-title">مواجهة الوحش والدوبامين الرخيص (The Battle & Urges)</span>
               </div>
               <p class="journal-prompt-guide">
-                اكتب وصفاً دقيقاً ليومك: مين كان واقف معاك؟ وإيه اللي حصل وكان سبب؟ إيه اللي حسيت بيه؟ وإيه اللي خلاك تكمل في طريقك؟
+                فين كانت لحظة الضعف النهارده؟ لما عقلك طلب الدوبامين الرخيص (إباحية / تقليب تليفون / هروب)، عملت إيه بالظبط؟ واجهت ولا استسلمت؟
               </p>
-              <textarea id="journal_today" class="journal-textarea" placeholder="ابدأ الكتابة هنا بصدق..."></textarea>
+              <textarea id="journal_today" class="journal-textarea" placeholder="اكتب الحقيقة كاملة هنا... هل قاومت ونزلت اتمرنت؟ ولا دماغك غلبتك واستسلمت للشهوة أو التشتيت؟"></textarea>
             </div>
 
-            <!-- Prompt 2: إيه اللي قربني وإيه اللي عطلني -->
+            <!-- Prompt 2: كشف الحساب والعمل الفعلي -->
             <div class="journal-card">
               <div class="journal-prompt-header">
                 <span class="journal-prompt-icon">🎯</span>
-                <span class="journal-prompt-title">إيه اللي عملته النهارده وقرّبني من هدفي؟ وإيه اللي عطلني؟</span>
+                <span class="journal-prompt-title">كشف الحساب والعمل الفعلي (The Ruthless Audit)</span>
               </div>
               <p class="journal-prompt-guide">
-                رصد المكاسب الصغيرة التي صنعت الفارق، وتشخيص المشتتات أو العقبات لتجنبها غداً.
+                إيه الشيء الوحيد اللي لو كنت عملته النهارده كان هينقلك نقلة حقيقية في مستقبلك وفلوسك، وإنت سوّفت فيه أو كروتّه؟
               </p>
-              <textarea id="journal_goal" class="journal-textarea" placeholder="ما الذي دفعك للأمام؟ وما هي نقطة التعطيل اليوم؟"></textarea>
+              <textarea id="journal_goal" class="journal-textarea" placeholder="شغلك، مشروعك، كود، تسويق، مذاكرة... إيه اللي هربت منه النهارده وكنت عارف إنه الصح؟"></textarea>
             </div>
 
-            <!-- Prompt 3: إحساسي وأنا ماشي في الطريق -->
+            <!-- Prompt 3: تشريح الجسد والوقود -->
             <div class="journal-card">
               <div class="journal-prompt-header">
-                <span class="journal-prompt-icon">🧭</span>
-                <span class="journal-prompt-title">إيه إحساسي وأنا ماشي في الطريق؟</span>
+                <span class="journal-prompt-icon">⚡</span>
+                <span class="journal-prompt-title">تشريح الجسد والوقود (Physical & Fuel Dominance)</span>
               </div>
               <p class="journal-prompt-guide">
-                راقب عقليتك: هل تشعر بالصبر؟ التعب؟ اليقين؟ الفخر بالثبات رغم الصعوبات؟
+                هل أكلت الـ 3500 سعرة والبروتين وتمرنت كشخص بيبني جسد مقاتل؟ وإيه كان عذرك لو قصرت؟
               </p>
-              <textarea id="journal_feelings" class="journal-textarea" placeholder="صف الحالة الشعورية والذهنية لرحلتك اليوم..."></textarea>
+              <textarea id="journal_feelings" class="journal-textarea" placeholder="عدد السعرات، جرامات البروتين، أوزان الجيم، الدش البارد... مفيش مكان للأعذار هنا."></textarea>
             </div>
 
-            <!-- Prompt 4: احكي لنفسك بصدق -->
+            <!-- Prompt 4: ميثاق الغد والانضباط -->
             <div class="journal-card">
               <div class="journal-prompt-header">
-                <span class="journal-prompt-icon">🤍</span>
-                <span class="journal-prompt-title">احكي لنفسك بصدق... إيه اللي جواك النهارده؟</span>
+                <span class="journal-prompt-icon">📜</span>
+                <span class="journal-prompt-title">ميثاق الغد والانضباط (The Iron Contract)</span>
               </div>
               <p class="journal-prompt-guide">
-                مساحة حرة بدون أقنعة أو مجاملات — فرغ ذهنك وتحدث مع نفسك بمنتهى الشفافية.
+                حاجة واحدة غير قابلة للتفاوض هتعملها أول ما تصحى بكرا عشان تثبت لنفسك إنك مش هترجع للقاع القديم؟
               </p>
-              <textarea id="journal_honest" class="journal-textarea" placeholder="اكتب كل ما يدور في أعماقك بدون قيود..."></textarea>
+              <textarea id="journal_honest" class="journal-textarea" placeholder="قرار محدد: صحيان 6 الصبح، صلاة الفجر في وقتها، غض بصر صارم، تمرين فتاك... عهدك مع نفسك لبكرا."></textarea>
             </div>
           </div>
         </section>
