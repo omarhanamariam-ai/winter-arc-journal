@@ -1387,15 +1387,25 @@
     initPWA();
   });
 
-  // PWA Support & Service Worker Registration
+  // PWA Support & Service Worker Registration with Auto-Update
   function initPWA() {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then((reg) => {
           console.log('Winter Arc ServiceWorker registered:', reg.scope);
+          reg.update();
         }).catch((err) => {
           console.warn('Winter Arc ServiceWorker registration failed:', err);
         });
+      });
+
+      // Reload smoothly when new Service Worker version activates
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
       });
     }
 

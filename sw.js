@@ -1,9 +1,9 @@
 /**
  * WINTER ARC SERVICE WORKER
- * 100% Offline Capability (Cache-First Architecture)
+ * 100% Offline Capability (Network-First for HTML, Cache-First for Assets)
  */
 
-const CACHE_NAME = 'winter-arc-cache-v1';
+const CACHE_NAME = 'winter-arc-cache-v3-ghost-mode';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -16,24 +16,24 @@ const ASSETS_TO_CACHE = [
   './icon-512.png'
 ];
 
-// Install Event: Pre-cache all essential app assets
+// Install Event: Pre-cache all essential app assets and activate immediately
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => {
-      return self.skipWaiting();
     })
   );
 });
 
-// Activate Event: Clean up outdated caches and take control
+// Activate Event: Clean up outdated caches and claim clients immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keyList) => {
       return Promise.all(
         keyList.map((key) => {
           if (key !== CACHE_NAME) {
+            console.log('[SW] Purging outdated cache:', key);
             return caches.delete(key);
           }
         })
@@ -44,36 +44,38 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event: Cache First, Network Fallback
+// Fetch Event: Network First for HTML so changes show immediately; Cache First for assets
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Return cached asset immediately
-        return cachedResponse;
-      }
+  const isHtml = event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html');
 
-      // If not in cache, fetch from network and cache for next time
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+  if (isHtml) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
           return networkResponse;
+        })
+        .catch(() => caches.match(event.request) || caches.match('./index.html') || caches.match('./'))
+    );
+  } else {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
         }
-
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
+        return fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return networkResponse;
         });
-
-        return networkResponse;
-      }).catch(() => {
-        // If offline and request fails, fallback to root index.html
-        if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
-          return caches.match('./index.html') || caches.match('./');
-        }
-      });
-    })
-  );
+      })
+    );
+  }
 });
