@@ -3,7 +3,7 @@
  * 100% Offline Capability (Network-First for HTML, Cache-First for Assets)
  */
 
-const CACHE_NAME = 'winter-arc-cache-v3-ghost-mode';
+const CACHE_NAME = 'winter-arc-cache-v4-metamorphosis';
 
 const ASSETS_TO_CACHE = [
   './',
