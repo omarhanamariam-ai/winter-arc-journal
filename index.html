@@ -120,6 +120,28 @@
          VIEW 1: DAILY JOURNAL & HABIT TRACKER (MATCHING USER'S PHYSICAL SHEET)
          ==================================================================== -->
     <main id="view-daily" class="view-container active">
+      <!-- Ghost Mode 180-Day Phase Roadmap Banner -->
+      <section class="ghost-mode-banner glass-panel">
+        <div class="phase-info-col">
+          <div class="phase-tag-row">
+            <span class="ghost-badge">🐺 وضع الاختفاء • GHOST MODE</span>
+            <span id="ghost-phase-title" class="phase-name">المرحلة 1: كسر الإدمان والصدمة الأولى (الأيام 1 - 30)</span>
+          </div>
+          <p id="ghost-phase-motto" class="phase-motto">
+            "الـ 6 شهور دول هتختفي فيهم عن الأنظار تماماً.. اللي هيشوفك بعدها مش هيعرفك."
+          </p>
+        </div>
+        <div class="phase-progress-col">
+          <div class="phase-progress-header">
+            <span class="phase-progress-label">تقدم المرحلة:</span>
+            <span id="ghost-phase-pct" class="phase-progress-val">7%</span>
+          </div>
+          <div class="phase-progress-track">
+            <div id="ghost-phase-bar" class="phase-progress-fill"></div>
+          </div>
+        </div>
+      </section>
+
       <div class="journal-layout">
 
         <!-- RIGHT COLUMN: التدوين ومحاسبة النفس الصادقة -->
@@ -226,7 +248,7 @@
               </div>
             </div>
 
-            <!-- 2. القرآن الكريم -->
+            <!-- 2. القرآن الكريم والأذكار -->
             <div class="quran-box">
               <div id="quran-checkbox-container" class="custom-checkbox-row">
                 <div class="checkbox-label">
@@ -238,21 +260,91 @@
               <div class="quran-inputs-row">
                 <input type="text" id="quran-pages-input" class="text-input-field" placeholder="عدد الصفحات / السورة / ملاحظات القراءة..." />
               </div>
+              <!-- أذكار الصباح والمساء -->
+              <div class="azkar-row">
+                <div id="azkar-morning-btn" class="azkar-btn">
+                  <span>🌅 أذكار الصباح</span>
+                  <div class="azkar-check"></div>
+                </div>
+                <div id="azkar-evening-btn" class="azkar-btn">
+                  <span>🌇 أذكار المساء</span>
+                  <div class="azkar-check"></div>
+                </div>
+              </div>
             </div>
 
-            <!-- 3. الابتعاد عن الذنوب وضبط النفس -->
+            <!-- 3. درع النقاء والابتعاد عن الذنوب -->
             <div style="display: flex; flex-direction: column; gap: 0.65rem;">
-              <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">⚔️ الابتعاد عن الذنوب وضبط النفس</span>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">⚔️ درع النقاء وغض البصر</span>
+                <span id="purity-streak-badge" class="purity-streak-pill">🛡️ 0 أيام نقاء متواصلة</span>
+              </div>
               <div class="discipline-toggle-group">
                 <div class="discipline-option" data-status="adhered">
                   <span>🛡️</span>
-                  <span>التزمت اليوم وثبتّ</span>
+                  <span>التزمت اليوم وثبتّ تماماً</span>
                 </div>
                 <div class="discipline-option" data-status="fallen">
                   <span>⚠️</span>
-                  <span>تعثرت وسأنهض فوراً</span>
+                  <span>تعثرت وسأنهض فوراً بلا أعذار</span>
                 </div>
               </div>
+            </div>
+
+            <!-- 4. وقود الجسد والحديد (Body, Fuel & Hypertrophy) -->
+            <div class="body-fuel-card">
+              <div class="body-fuel-header">
+                <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">🥩 وقود الجسد والحديد (Hypertrophy)</span>
+                <div class="weight-input-container">
+                  <span>وزن اليوم:</span>
+                  <input type="number" id="input-weight-kg" class="metric-input-mini" placeholder="68.5" step="0.1" />
+                  <span>كجم</span>
+                </div>
+              </div>
+              <!-- 3500 Kcal Target Toggle -->
+              <div id="btn-calories-target" class="fuel-toggle-btn">
+                <span class="icon">🔥</span>
+                <div class="fuel-text">
+                  <span class="title">هدف الـ 3500 سعرة حرارية + 150g بروتين</span>
+                  <span class="desc">بناء ألياف عضلية حقيقية وتغذية جسد مقاتل</span>
+                </div>
+                <div class="fuel-check"></div>
+              </div>
+              <!-- Water Intake (Glasses) -->
+              <div class="water-tracker-container">
+                <span class="water-label">💧 استهلاك المياه اليومي:</span>
+                <div class="water-glasses-row">
+                  <div class="water-cup-btn" data-liters="1">1 لتر</div>
+                  <div class="water-cup-btn" data-liters="2">2 لتر</div>
+                  <div class="water-cup-btn" data-liters="3">3 لتر</div>
+                  <div class="water-cup-btn" data-liters="3.5">3.5L+ 🏆</div>
+                </div>
+              </div>
+              <!-- Cold Shower Toggle -->
+              <div id="btn-cold-shower" class="fuel-toggle-btn cold-btn">
+                <span class="icon">❄️</span>
+                <div class="fuel-text">
+                  <span class="title">الاستحمام بماء بارد (Cold Exposure)</span>
+                  <span class="desc">رفع الدوبامين القاعدي 250% وصقل الصلابة النفسية</span>
+                </div>
+                <div class="fuel-check"></div>
+              </div>
+            </div>
+
+            <!-- 5. ساعات العمل العميق (Monk Mode Deep Work) -->
+            <div class="deepwork-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">🎯 ساعات العمل المركز (Deep Work)</span>
+                <span id="deepwork-display-val" style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 800;">0 ساعة</span>
+              </div>
+              <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">عمل حقيقي بدون هاتف نهائياً لبناء مستقبلك المالي والمهني:</p>
+              <div class="deepwork-hours-row">
+                <div class="dw-hour-btn" data-hours="1">1 س</div>
+                <div class="dw-hour-btn" data-hours="2">2 س</div>
+                <div class="dw-hour-btn" data-hours="3">3 س</div>
+                <div class="dw-hour-btn" data-hours="4">4+ س 🔥</div>
+              </div>
+              <input type="text" id="input-deepwork-task" class="text-input-field" placeholder="المشروع / الكود / الهدف المالي الذي اشتغلت عليه اليوم..." />
             </div>
 
             <!-- 4. عاداتي الخاصة (Winter Arc Habits) -->

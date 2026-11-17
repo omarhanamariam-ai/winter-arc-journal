@@ -340,11 +340,20 @@
           journal_goal: '',
           journal_feelings: '',
           journal_honest: '',
+          azkar: { morning: false, evening: false },
+          weight_kg: '',
+          calories_target: false,
+          water_liters: 0,
+          cold_shower: false,
+          deepwork_hours: 0,
+          deepwork_task: '',
           percent: 0,
           updatedAt: Date.now()
         };
       }
-      return this.data.days[dayNum];
+      const day = this.data.days[dayNum];
+      if (!day.azkar) day.azkar = { morning: false, evening: false };
+      return day;
     }
 
     // Calculate Completion Percentage for a day
@@ -549,10 +558,98 @@
           const status = opt.dataset.status;
           const day = this.getDay(this.currentDay);
           day.discipline = day.discipline === status ? null : status;
+          if (day.discipline === 'adhered') {
+            day.habits['ghad_basar'] = true;
+          }
           this.sound.playTick();
           this.onDayDataChanged();
         });
       });
+
+      // Daily Log: Azkar (الصباح والمساء)
+      const azkarMorn = document.getElementById('azkar-morning-btn');
+      if (azkarMorn) {
+        azkarMorn.addEventListener('click', () => {
+          const day = this.getDay(this.currentDay);
+          day.azkar.morning = !day.azkar.morning;
+          this.sound.playTick();
+          this.onDayDataChanged();
+        });
+      }
+      const azkarEve = document.getElementById('azkar-evening-btn');
+      if (azkarEve) {
+        azkarEve.addEventListener('click', () => {
+          const day = this.getDay(this.currentDay);
+          day.azkar.evening = !day.azkar.evening;
+          this.sound.playTick();
+          this.onDayDataChanged();
+        });
+      }
+
+      // Daily Log: Body & Fuel (الوزن، 3500 سعرة، المياه، الدش البارد)
+      const calTargetBtn = document.getElementById('btn-calories-target');
+      if (calTargetBtn) {
+        calTargetBtn.addEventListener('click', () => {
+          const day = this.getDay(this.currentDay);
+          day.calories_target = !day.calories_target;
+          day.habits['calories_3500'] = day.calories_target;
+          day.habits['protein_target'] = day.calories_target;
+          this.sound.playTick();
+          this.onDayDataChanged();
+        });
+      }
+
+      const weightInput = document.getElementById('input-weight-kg');
+      if (weightInput) {
+        weightInput.addEventListener('input', (e) => {
+          const day = this.getDay(this.currentDay);
+          day.weight_kg = e.target.value;
+          this.debounceSave();
+        });
+      }
+
+      document.querySelectorAll('.water-cup-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const liters = parseFloat(btn.dataset.liters);
+          const day = this.getDay(this.currentDay);
+          day.water_liters = day.water_liters === liters ? 0 : liters;
+          day.habits['water_diet'] = day.water_liters >= 3;
+          this.sound.playTick();
+          this.onDayDataChanged();
+        });
+      });
+
+      const coldShowerBtn = document.getElementById('btn-cold-shower');
+      if (coldShowerBtn) {
+        coldShowerBtn.addEventListener('click', () => {
+          const day = this.getDay(this.currentDay);
+          day.cold_shower = !day.cold_shower;
+          day.habits['cold_shower'] = day.cold_shower;
+          this.sound.playTick();
+          this.onDayDataChanged();
+        });
+      }
+
+      // Daily Log: Deep Work (ساعات العمل العميق)
+      document.querySelectorAll('.dw-hour-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const hours = parseInt(btn.dataset.hours, 10);
+          const day = this.getDay(this.currentDay);
+          day.deepwork_hours = day.deepwork_hours === hours ? 0 : hours;
+          day.habits['deepwork'] = day.deepwork_hours >= 2;
+          this.sound.playTick();
+          this.onDayDataChanged();
+        });
+      });
+
+      const dwTaskInput = document.getElementById('input-deepwork-task');
+      if (dwTaskInput) {
+        dwTaskInput.addEventListener('input', (e) => {
+          const day = this.getDay(this.currentDay);
+          day.deepwork_task = e.target.value;
+          this.debounceSave();
+        });
+      }
 
       // Daily Log: Rating 1 to 10
       document.querySelectorAll('.rating-circle').forEach(circle => {
@@ -777,6 +874,66 @@
       this.streakCountDisplay.textContent = `${stats.currentStreak} أيام`;
     }
 
+    // Calculate Consecutive Purity / Semen Retention Streak
+    calculatePurityStreak() {
+      let streak = 0;
+      const todayNum = this.realWorldDay || 1;
+      for (let i = todayNum; i >= 1; i--) {
+        const d = this.data.days[i];
+        if (d && d.discipline === 'adhered') {
+          streak++;
+        } else if (i === todayNum && (!d || !d.discipline)) {
+          // If current day hasn't been logged yet, keep checking past streak
+          continue;
+        } else {
+          break;
+        }
+      }
+      return streak;
+    }
+
+    // Render Ghost Mode Phase Roadmap and Purity Badge
+    renderGhostModeAndPurity() {
+      // 1. Purity streak badge
+      const purityBadge = document.getElementById('purity-streak-badge');
+      if (purityBadge) {
+        const purityStreak = this.calculatePurityStreak();
+        purityBadge.textContent = `🛡️ ${purityStreak} أيام نقاء متواصلة`;
+      }
+
+      // 2. Ghost Mode Phase Roadmap
+      const currentDay = this.realWorldDay || 1;
+      let phaseTitle = '';
+      let phaseMotto = '';
+      let phasePct = 0;
+
+      if (currentDay <= 30) {
+        phaseTitle = `المرحلة 1: كسر الإدمان والصدمة الأولى (الأيام 1 - 30)`;
+        phaseMotto = `"الـ 6 شهور دول هتختفي فيهم عن الأنظار تماماً.. اللي هيشوفك بعدها مش هيعرفك."`;
+        phasePct = Math.round((currentDay / 30) * 100);
+      } else if (currentDay <= 90) {
+        const dayInPhase = currentDay - 30;
+        phaseTitle = `المرحلة 2: الصهر وبناء الكتلة والمهارات (الأيام 31 - 90)`;
+        phaseMotto = `"العضلات بتكبر، الدوبامين بيتعافى، والمستقبل المالي بيتبني في صمت تام."`;
+        phasePct = Math.round((dayInPhase / 60) * 100);
+      } else {
+        const dayInPhase = currentDay - 90;
+        phaseTitle = `المرحلة 3: النخبة والتحول التام (الأيام 91 - 180)`;
+        phaseMotto = `"المرحلة الأخيرة.. ظهور الوحش الذي لا يُقهر بعد 6 شهور من الاختفاء."`;
+        phasePct = Math.round((dayInPhase / 90) * 100);
+      }
+
+      const titleEl = document.getElementById('ghost-phase-title');
+      const mottoEl = document.getElementById('ghost-phase-motto');
+      const pctEl = document.getElementById('ghost-phase-pct');
+      const barEl = document.getElementById('ghost-phase-bar');
+
+      if (titleEl) titleEl.textContent = phaseTitle;
+      if (mottoEl) mottoEl.textContent = phaseMotto;
+      if (pctEl) pctEl.textContent = `${phasePct}%`;
+      if (barEl) barEl.style.width = `${Math.min(100, Math.max(5, phasePct))}%`;
+    }
+
     // Render View 1: Daily Journal
     renderDailyView() {
       const day = this.getDay(this.currentDay);
@@ -790,7 +947,7 @@
         if (statusBox) statusBox.textContent = isChecked ? '✓' : '';
       });
 
-      // 2. Quran
+      // 2. Quran & Azkar
       const quranBox = document.getElementById('quran-custom-checkbox');
       if (quranBox) {
         quranBox.classList.toggle('checked', !!(day.quran && day.quran.read));
@@ -799,6 +956,14 @@
       const quranPages = document.getElementById('quran-pages-input');
       if (quranPages) {
         quranPages.value = (day.quran && day.quran.pages) ? day.quran.pages : '';
+      }
+      const azkarMorn = document.getElementById('azkar-morning-btn');
+      if (azkarMorn) {
+        azkarMorn.classList.toggle('active', !!(day.azkar && day.azkar.morning));
+      }
+      const azkarEve = document.getElementById('azkar-evening-btn');
+      if (azkarEve) {
+        azkarEve.classList.toggle('active', !!(day.azkar && day.azkar.evening));
       }
 
       // 3. Discipline
@@ -811,26 +976,60 @@
         }
       });
 
-      // 4. Custom Habits List
+      // 4. Body & Fuel (الوزن، 3500 سعرة، المياه، الدش البارد)
+      const calBtn = document.getElementById('btn-calories-target');
+      if (calBtn) {
+        const isCalDone = !!(day.calories_target || (day.habits && day.habits['calories_3500']));
+        calBtn.classList.toggle('active', isCalDone);
+      }
+      const weightEl = document.getElementById('input-weight-kg');
+      if (weightEl) {
+        weightEl.value = day.weight_kg || '';
+      }
+      document.querySelectorAll('.water-cup-btn').forEach(btn => {
+        const liters = parseFloat(btn.dataset.liters);
+        btn.classList.toggle('active', (day.water_liters || 0) >= liters);
+      });
+      const coldBtn = document.getElementById('btn-cold-shower');
+      if (coldBtn) {
+        const isColdDone = !!(day.cold_shower || (day.habits && day.habits['cold_shower']));
+        coldBtn.classList.toggle('active', isColdDone);
+      }
+
+      // 5. Deep Work Hours & Task
+      document.querySelectorAll('.dw-hour-btn').forEach(btn => {
+        const h = parseInt(btn.dataset.hours, 10);
+        btn.classList.toggle('active', (day.deepwork_hours || 0) >= h);
+      });
+      const dwDisplay = document.getElementById('deepwork-display-val');
+      if (dwDisplay) {
+        dwDisplay.textContent = `${day.deepwork_hours || 0} ساعات`;
+      }
+      const dwTaskEl = document.getElementById('input-deepwork-task');
+      if (dwTaskEl) {
+        dwTaskEl.value = day.deepwork_task || '';
+      }
+
+      // 6. Custom Habits List
       this.renderHabitsList(day);
 
-      // 5. Rating from 1 to 10
+      // 7. Rating from 1 to 10
       document.querySelectorAll('.rating-circle').forEach(circle => {
         const rate = parseInt(circle.dataset.rate, 10);
         circle.classList.toggle('active', day.rating === rate);
       });
 
-      // 6. Satisfaction
+      // 8. Satisfaction
       document.querySelectorAll('.satisfaction-btn').forEach(btn => {
         btn.classList.toggle('active', day.satisfaction === btn.dataset.value);
       });
 
-      // 7. Weather
+      // 9. Weather
       document.querySelectorAll('.weather-pill').forEach(pill => {
         pill.classList.toggle('active', day.weather === pill.dataset.weather);
       });
 
-      // 8. Textareas
+      // 10. Textareas
       const textareas = ['journal_today', 'journal_goal', 'journal_feelings', 'journal_honest'];
       textareas.forEach(id => {
         const el = document.getElementById(id);
@@ -839,6 +1038,9 @@
           this.autoResizeTextarea(el);
         }
       });
+
+      // 11. Render Ghost Mode Roadmap & Purity Streak
+      this.renderGhostModeAndPurity();
     }
 
     // Render Habits List dynamically
