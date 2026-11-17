@@ -17,7 +17,7 @@
   <meta name="apple-mobile-web-app-title" content="STAY HARD" />
 
   <!-- Local Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=6.0" />
+  <link rel="stylesheet" href="style.css?v=7.0" />
 </head>
 <body>
 
@@ -159,6 +159,11 @@
             <span class="directive-title">صفعة David Goggins لليوم (<span id="directive-day-num">اليوم 1</span>):</span>
           </div>
           <p id="daily-directive-text" class="directive-body">جاري تحميل التوجيه...</p>
+          <button id="btn-open-daily-codex" class="directive-action-btn" type="button">
+            <span class="btn-icon">🔱</span>
+            <span class="btn-text">افتح بروتوكول وتوجيه اليوم بالكامل في صفحة Goggins</span>
+            <span class="btn-arrow">←</span>
+          </button>
         </div>
       </section>
 
@@ -238,7 +243,12 @@
 
             <!-- 1. الصلاة -->
             <div style="display: flex; flex-direction: column; gap: 0.65rem;">
-              <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">🕌 الصلوات الخمس</span>
+              <div class="prayers-header-row">
+                <span class="prayers-title-label">🕌 الصلوات الخمس (الحصن العصبي والروحي)</span>
+                <button id="btn-prayer-science-shortcut" class="prayer-science-pill-btn" type="button">
+                  🔬 أسرار وفوائد الصلاة العلمية والشرعية
+                </button>
+              </div>
               <div class="prayers-grid">
                 <div class="prayer-btn" data-prayer="fajr">
                   <span class="icon">🌅</span>
@@ -538,6 +548,88 @@
           </div>
         </section>
 
+        <!-- DYNAMIC DAILY GOGGINS DOSSIER (Changes by Day 1 to 180) -->
+        <section id="codex-daily-dossier" class="codex-card glass-panel goggins-dossier-card">
+          <div class="dossier-header-bar">
+            <div class="dossier-nav-controls">
+              <button id="dossier-prev-btn" class="dossier-nav-btn" type="button" title="اليوم السابق">← اليوم السابق</button>
+              <div class="dossier-active-badge">
+                <span id="dossier-phase-tag" class="dossier-phase-pill">المرحلة الأولى</span>
+                <span id="dossier-day-title" class="dossier-day-number">اليوم 1 من 180</span>
+              </div>
+              <button id="dossier-next-btn" class="dossier-nav-btn" type="button" title="اليوم التالي">اليوم التالي →</button>
+              <button id="dossier-today-btn" class="dossier-today-pill" type="button" title="الانتقال ليومك الفعلي">📍 يومك الحالي</button>
+            </div>
+            <div class="dossier-quick-select-wrap">
+              <label for="dossier-day-select" class="dossier-select-label">تصفح أي يوم:</label>
+              <select id="dossier-day-select" class="dossier-select"></select>
+            </div>
+          </div>
+
+          <div class="dossier-content-body">
+            <!-- Day Battle Title -->
+            <div class="dossier-title-banner">
+              <span class="dossier-trident">🔱</span>
+              <div class="dossier-title-text-group">
+                <span id="dossier-mission-code" class="dossier-mission-code">BATTLE PROTOCOL • DAY-001</span>
+                <h2 id="dossier-mission-title" class="dossier-mission-title">نقطة الصفر وكسر المرآة</h2>
+              </div>
+            </div>
+
+            <!-- Morning Slap -->
+            <div class="dossier-card-block morning-slap-block">
+              <div class="block-label">
+                <span class="block-icon">⚡</span>
+                <span>صفعة ديفيد جوجينز الصباحية (The 04:30 AM Wake-Up Slap)</span>
+              </div>
+              <div id="dossier-morning-slap-text" class="block-content slap-quote">
+                جاري تحميل توجيه اليوم...
+              </div>
+            </div>
+
+            <!-- 2-Col Grid: Tactical Mission & 40% Barrier -->
+            <div class="dossier-grid-cols">
+              <div class="dossier-subcard tactical-mission-subcard">
+                <div class="subcard-header">
+                  <span class="subcard-icon">🎯</span>
+                  <span class="subcard-title">التكليف الميداني البدني والنفسي لليوم</span>
+                </div>
+                <p id="dossier-tactical-text" class="subcard-body">...</p>
+              </div>
+
+              <div class="dossier-subcard barrier-subcard">
+                <div class="subcard-header">
+                  <span class="subcard-icon">🛑</span>
+                  <span class="subcard-title">حاجز الـ 40% لليوم (أين ستستسلم وكيف تكسره)</span>
+                </div>
+                <p id="dossier-barrier-text" class="subcard-body">...</p>
+              </div>
+            </div>
+
+            <!-- Spiritual Fortress: Prayer Focus -->
+            <div class="dossier-card-block spiritual-shield-block">
+              <div class="block-label">
+                <span class="block-icon">🕌</span>
+                <span>سلاح الصلاة والاتصال الروحي لليوم (Spiritual Fortification)</span>
+              </div>
+              <div id="dossier-prayer-text" class="block-content prayer-focus-content">
+                ...
+              </div>
+            </div>
+
+            <!-- Evening Accountability Mirror -->
+            <div class="dossier-card-block mirror-audit-block">
+              <div class="block-label">
+                <span class="block-icon">🪞</span>
+                <span>سؤال مرآة المحاسبة المسائي الصادم (Accountability Mirror)</span>
+              </div>
+              <div id="dossier-mirror-text" class="block-content mirror-question-content">
+                ...
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- Chapter 1: Goggins 40% Rule & Mental Calluses -->
         <section class="codex-card glass-panel goggins-card">
           <div class="codex-card-header">
@@ -661,7 +753,7 @@
         </section>
 
         <!-- Chapter 3: Prayer — Religious & Scientific Evidence -->
-        <section class="codex-card glass-panel prayer-codex-card">
+        <section id="chapter-prayer" class="codex-card glass-panel prayer-codex-card">
           <div class="codex-card-header">
             <div class="codex-chapter-tag prayer-tag">🕌 الصلاة</div>
             <h3 class="codex-card-title">قوة الصلاة: الدليل الديني الكامل + الإثبات العلمي</h3>
@@ -695,6 +787,26 @@
                   <li><strong>تقوي الجهاز المناعي:</strong> الدراسات على المصلين منتظمي الصلاة أثبتت ارتفاع مستويات الـ Immunoglobulin A (IgA) التي تحمي من الأمراض.</li>
                   <li><strong>تقضي على التفكير الاجتراري:</strong> تقطع الصلاة دورة الأفكار السلبية المتكررة (Rumination) بفرض انقطاع منتظم كل 2-4 ساعات للحضور الذهني مع الله.</li>
                   <li><strong>تبني انضباطاً دورياً آلياً:</strong> 5 أوقات محددة يومياً = تدريب إجباري على الالتزام بجدول زمني محدد، أقوى من أي نظام إنتاجية بشري.</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Deep Neuro-Spiritual Anti-Relapse Science -->
+            <div class="codex-grid-2" style="margin-bottom: 1.5rem;">
+              <div class="codex-sub-box prayer-neuro-box">
+                <h4>🧠 تشريح السجود في علم الأعصاب (Neuro-Hemodynamics of Sujood)</h4>
+                <ul class="codex-list">
+                  <li><strong>تروية الفص الجبهي (DLPFC Perfusion):</strong> في وضعية السجود، تكون الرأس أدنى من القلب مباشرة، مما يرفع ضغط التروية الدموية الشريانية (Arterial Perfusion Pressure) للشرايين الدماغية الأمامية بنسبة 14-20%. الفص الجبهي هو المسؤول الوحيد عن قوة الإرادة، تأجيل اللذة، والتخطيط المستقبلي.</li>
+                  <li><strong>تهدئة اللوزة الدماغية (Downregulating the Amygdala):</strong> دراسات الرنين المغناطيسي الوظيفي (fMRI) على أدمغة المصلين الخاشعين أثبتت انخفاضاً حاداً في إشارات اللوزة الدماغية (مركز الخوف، الغضب، والاندفاع الجنسي)، مما ينقل الجهاز العصبي من حالة الاستثارة المفرطة إلى السكون.</li>
+                  <li><strong>تحفيز العصب الحائر (Vagal Stimulation):</strong> إطالة الركوع والسجود تحفز مستقبلات الضغط (Baroreceptors) في الشريان السباتي، مما يرفع نشاط العصب الحائر (Vagus Nerve) بنسبة 35%، فيخفض ضربات القلب ويفرز الأسيتيل كولين المهدئ.</li>
+                </ul>
+              </div>
+              <div class="codex-sub-box prayer-relapse-box">
+                <h4>🛡️ كيف تكسر الصلاة دائرة الإدمان والشهوة؟ (The Anti-Relapse Protocol)</h4>
+                <ul class="codex-list">
+                  <li><strong>كسر حلقة الدوبامين الرخيص (Dopamine Circuit Hijack):</strong> أي إدمان (إباحية، تقليب، طعام) يعتمد على حلقة: محفز ← رغبة ← مكافأة سريعة. الصلاة الخمس المفروضة تقطع هذه الحلقة إجبارياً كل 3 إلى 5 ساعات، مانعة العقل من الدخول في نفق الشهوة اللاواعي.</li>
+                  <li><strong>الدليل القرآني الصريح:</strong> قال تعالى: ﴿إِنَّ الصَّلَاةَ تَنْهَىٰ عَنِ الْفَحْشَاءِ وَالْمُنكَرِ وَلَذِكْرُ اللَّهِ أَكْبَرُ﴾ — العنكبوت: 45. الآية لم تقل 'تمنع بالقوة'، بل 'تنهى' أي تبني صوتاً داخلياً رادعاً ووازعاً عصبياً ونفسياً يجعلك تحتقر المعصية بعد الوقوف بين يدي الله.</li>
+                  <li><strong>الوضوء كإعادة ضبط حسية (Hydrotherapy Sensory Reset):</strong> ملامسة الماء البارد للوجه واليدين والقدمين 5 مرات يومياً تنشط النهايات العصبية للفرع الخامس والسابع القحفي، فتقطع فوراً حالة التبلد الحسي (Sensory numbness) التي تسبق الانتكاسة.</li>
                 </ul>
               </div>
             </div>
@@ -989,6 +1101,6 @@
   </div>
 
   <!-- Local Script -->
-  <script src="app.js?v=6.0"></script>
+  <script src="app.js?v=7.0"></script>
 </body>
 </html>
