@@ -64,6 +64,47 @@
         });
       } catch (e) {}
     }
+
+    playAlarm() {
+      if (!this.enabled) return;
+      try {
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+        osc.frequency.setValueAtTime(330, this.ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.35);
+      } catch (e) {}
+    }
+
+    playVictory() {
+      if (!this.enabled) return;
+      try {
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99]; // C4, E4, G4, C5, E5, G5
+        notes.forEach((freq, index) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const startTime = this.ctx.currentTime + index * 0.09;
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.18, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.6);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + 0.6);
+        });
+      } catch (e) {}
+    }
   }
 
   // Confetti Particle Engine
@@ -452,6 +493,7 @@
       this.viewDaily = document.getElementById('view-daily');
       this.viewMatrix = document.getElementById('view-matrix');
       this.viewSettings = document.getElementById('view-settings');
+      this.viewCodex = document.getElementById('view-codex');
 
       this.currentDayBadge = document.querySelector('.current-day-badge');
       this.currentDayBadgeTitle = document.getElementById('current-day-badge-title');
@@ -776,6 +818,9 @@
       this.modalOverlay.addEventListener('click', (e) => {
         if (e.target === this.modalOverlay) this.closeModal();
       });
+
+      // Emergency SOS Urge Protocol Init
+      this.initEmergencySystem();
     }
 
     autoResizeTextarea(el) {
@@ -806,14 +851,17 @@
         btn.classList.toggle('active', btn.dataset.tab === tab);
       });
 
-      this.viewDaily.classList.toggle('active', tab === 'daily');
-      this.viewMatrix.classList.toggle('active', tab === 'matrix');
-      this.viewSettings.classList.toggle('active', tab === 'settings');
+      if (this.viewDaily) this.viewDaily.classList.toggle('active', tab === 'daily');
+      if (this.viewMatrix) this.viewMatrix.classList.toggle('active', tab === 'matrix');
+      if (this.viewSettings) this.viewSettings.classList.toggle('active', tab === 'settings');
+      if (this.viewCodex) this.viewCodex.classList.toggle('active', tab === 'codex');
 
       if (tab === 'matrix') {
         this.renderMatrixView();
       } else if (tab === 'daily') {
         this.renderDailyView();
+      } else if (tab === 'codex') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
 
@@ -901,42 +949,68 @@
         purityBadge.textContent = `🛡️ ${purityStreak} أيام نقاء متواصلة`;
       }
 
-      // 2. Ghost Mode Phase Roadmap
-      const currentDay = this.realWorldDay || 1;
+      // 2. Ghost Mode Phase Roadmap - Evaluates actively viewed day
+      const currentDay = this.currentDay;
       let phaseTitle = '';
       let phaseMotto = '';
       let phasePct = 0;
 
       if (currentDay <= 30) {
-        phaseTitle = `المرحلة 1: كسر الإدمان والصدمة الأولى (الأيام 1 - 30)`;
+        phaseTitle = `المرحلة 1: كسر الإدمان، الصدمة، وتنظيف الدوبامين (الأيام 1 - 30)`;
         phaseMotto = `"الـ 6 شهور دول هتختفي فيهم عن الأنظار تماماً.. اللي هيشوفك بعدها مش هيعرفك."`;
         phasePct = Math.round((currentDay / 30) * 100);
       } else if (currentDay <= 90) {
         const dayInPhase = currentDay - 30;
-        phaseTitle = `المرحلة 2: الصهر وبناء الكتلة والمهارات (الأيام 31 - 90)`;
-        phaseMotto = `"العضلات بتكبر، الدوبامين بيتعافى، والمستقبل المالي بيتبني في صمت تام."`;
+        phaseTitle = `المرحلة 2: الصهر، بناء العضلات، والعمل المركز العميق (الأيام 31 - 90)`;
+        phaseMotto = `"العضلات بتكبر، الدوبامين بيتعافى، والمستقبل المالي والبرمجي بيتبني في صمت تام."`;
+        phasePct = Math.round((dayInPhase / 60) * 100);
+      } else if (currentDay <= 150) {
+        const dayInPhase = currentDay - 90;
+        phaseTitle = `المرحلة 3: التصلب الحديدي، الانضباط الآلي، وثبات الهوية (الأيام 91 - 150)`;
+        phaseMotto = `"الصعوبة اختفت.. الانضباط أصبح تنفسك الطبيعي. لا تراجع، لا استسلام، ولا انتكاس."`;
         phasePct = Math.round((dayInPhase / 60) * 100);
       } else {
-        const dayInPhase = currentDay - 90;
-        phaseTitle = `المرحلة 3: النخبة والتحول التام (الأيام 91 - 180)`;
-        phaseMotto = `"المرحلة الأخيرة.. ظهور الوحش الذي لا يُقهر بعد 6 شهور من الاختفاء."`;
-        phasePct = Math.round((dayInPhase / 90) * 100);
+        const dayInPhase = currentDay - 150;
+        phaseTitle = `المرحلة 4: قمة التحول، السيادة، والاستعداد للظهور (الأيام 151 - 180)`;
+        phaseMotto = `"نهاية الـ 180 يوم.. ولادة رجل جديد تماماً بجسد صلب، عقل حاد، وروح نقية تقود مستقبله."`;
+        phasePct = Math.round((dayInPhase / 30) * 100);
       }
 
       const titleEl = document.getElementById('ghost-phase-title');
       const mottoEl = document.getElementById('ghost-phase-motto');
       const pctEl = document.getElementById('ghost-phase-pct');
       const barEl = document.getElementById('ghost-phase-bar');
+      const statusPill = document.getElementById('ghost-phase-day-status');
 
       if (titleEl) titleEl.textContent = phaseTitle;
       if (mottoEl) mottoEl.textContent = phaseMotto;
       if (pctEl) pctEl.textContent = `${phasePct}%`;
       if (barEl) barEl.style.width = `${Math.min(100, Math.max(5, phasePct))}%`;
+
+      if (statusPill) {
+        statusPill.className = 'phase-day-status';
+        if (this.currentDay === this.realWorldDay) {
+          statusPill.classList.add('status-today');
+          statusPill.textContent = '📍 اليوم الفعلي لك الآن';
+        } else if (this.currentDay < this.realWorldDay) {
+          statusPill.classList.add('status-past');
+          statusPill.textContent = `⏪ مراجعة يوم سابق (يوم ${this.currentDay})`;
+        } else {
+          statusPill.classList.add('status-future');
+          statusPill.textContent = `⏩ نظرة استباقية (يوم ${this.currentDay})`;
+        }
+      }
     }
 
     // Render View 1: Daily Journal
     renderDailyView() {
       const day = this.getDay(this.currentDay);
+
+      // 0. Daily Tactical Directive Banner
+      const directiveDayNum = document.getElementById('directive-day-num');
+      const directiveText = document.getElementById('daily-directive-text');
+      if (directiveDayNum) directiveDayNum.textContent = `اليوم ${this.currentDay}`;
+      if (directiveText) directiveText.textContent = this.getDailyDirective(this.currentDay);
 
       // 1. Prayers
       document.querySelectorAll('.prayer-btn').forEach(btn => {
@@ -1357,6 +1431,344 @@
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
+    }
+
+    // ==========================================
+    // DAILY TACTICAL DIRECTIVE ENGINE (180 DAYS)
+    // ==========================================
+    getDailyDirective(dayNum) {
+      const milestoneDirectives = {
+        1: "اليوم الأول: بداية نقطة الصفر.. انسَ كل وعودك القديمة. كل لحظة تقضيها النهارده بدون تليفون وبدون شهوة هي حجر أساس لرجولتك القادمة.",
+        2: "اليوم الثاني: صدمة الانسحاب بتبدأ.. مخك هيلح عليك ويقولك 'يوم واحد مش هيفرق'. دي كذبة الدوبامين الرخيص، اثبت مكانك.",
+        3: "اليوم الثالث: المعركة الحقيقية.. 3 أيام بدون انتكاس بتعيد تنظيم أول مستقبلات دوبامين في قشرة الدماغ الجبهية. لا تتراجع شبر واحد.",
+        4: "اليوم الرابع: ألم التمرين في الجيم هو الطريقة الوحيدة لتفريغ هرمون التستوستيرون في بناء عضلي حقيقي بدل تضييعه في العدم.",
+        5: "اليوم الخامس: الصمت التام.. متقولش لحد إنك بتعمل Winter Arc. السر قوة، والظهور بدون نتيجة ضعف. اختفِ واشتغل.",
+        7: "اليوم السابع (نهاية الأسبوع 1): انتصرت في أول جولة.. التستوستيرون الطبيعي بيقفز بنسبة 45%. احتفظ بالقوة دي واكسر الأوزان في الجيم.",
+        10: "اليوم العاشر: غض البصر هو الدرع.. أي نظرة عابرة في الشارع أو على السوشيال ميديا هي عود ثقاب بيولع في غابة إرادتك.",
+        14: "اليوم الرابع عشر (أسبوعين نقاء): الضباب الفكري بدأ يتبدد.. عينيك بقت أصفى، وصوتك بقى أعمق. متسمحش لذرة تهاون تدمر اللي بنيته.",
+        21: "اليوم الواحد والعشرون: المسارات العصبية القديمة بتموت.. العادات بتتغير بالتدريج. الصلاة في وقتها مش رفاهية، هي المرساة الروحية لحياتك.",
+        30: "اليوم الثلاثون (ختام المرحلة 1): كسر الإدمان والصدمة الأولى.. شهر كامل عدّى وأنت واقف صلب. أنت رسمياً دخلت مرحلة بناء الوحش.",
+        45: "اليوم الخامس والأربعون: نصف المرحلة الثانية.. عضلاتك محتاجة 3500 سعرة يومياً. كل وجبة هي رصاصة في وجه الكسل وجسد الضعف.",
+        60: "اليوم الستون (شهران في الظلام): مهاراتك البرمجية والتركيز العميق (Deep Work) هما اللي هيخلوك تملك مستقبلك المالي. صمت، تركيز، وتنفيذ.",
+        75: "اليوم الخامس والسبعون: الشهوات القديمة بتفقد سيطرتها التامة.. عقلك بقى أداة حادة بتطيعك مش العكس.",
+        90: "اليوم التسعون (منتصف الـ Winter Arc): 90 يوماً من النقاء والحديد والقرآن.. نص الرحلة انتهى، وبدأت ملامح الرجل الذي لا يُقهر.",
+        100: "اليوم المائة: نادي المائة.. 100 يوم من الاختفاء والعمل المتواصل. الانضباط مبقاش مجهود، ده أسلوب حياتك الطبيعي.",
+        120: "اليوم المائة والعشرون: أربعة أشهر من الصهر.. اللي هيشوفك دلوقتي هيبدأ يلاحظ الفارق الضخم في هيبتك ونبرتك وجسدك.",
+        150: "اليوم المائة والخمسون: ختام مرحلة التصلب.. بقيت على بعد شهر واحد من الظهور الكامل. متسمحش للغرور يتسرب لقلبك، كمّل كأنك في اليوم الأول.",
+        180: "اليوم المائة والثمانون (نهاية الرحلة والظهور): 6 شهور من الاختفاء الكامل.. من القاع إلى قمة السيادة. لقد انتصرت وولدت من جديد يا عمر."
+      };
+
+      if (milestoneDirectives[dayNum]) {
+        return milestoneDirectives[dayNum];
+      }
+
+      // Dynamic phase-based directives for intervening days
+      const phase1Pool = [
+        "الفص الجبهي في مخك بيعيد بناء نفسه دقيقة بدقيقة.. استمر في الصمود ولا ترضخ لأي وسوسة.",
+        "الماء البارد كل صباح هو رسالة لعقلك: أنا القائد، والجسد هو من يطيع.",
+        "النظرة الأولى لك، والثانية عليك.. احمِ عينيك لحماية صفاء ذهنك وطاقتك الحيوية.",
+        "الرجولة الحقيقية هي قدرتك على قول 'لا' لأتفه رغباتك الحيوانية لتبني أعظم أهدافك.",
+        "الـ 3500 سعرة والبروتين هما وقود الوحش القادم.. لا تفوت وجبة واحدة اليوم.",
+        "كل تكرار حديد في الجيم يطرد سموم 3 سنوات من الخمول والضياع.",
+        "صلاتك هي حصنك الوحيد.. بدونها أنت عارٍ أمام وساوس نفسك والضعف البشري."
+      ];
+
+      const phase2Pool = [
+        "العمل العميق (Deep Work) بدون تشتت لمدة 3 ساعات ينتج ما يعجز عنه الآخرون في شهر كامل.",
+        "عضلاتك تُصنع في هدوء المطبخ وصالة الجيم.. لا تبحث عن تصفيق أو إعجاب أحد الآن.",
+        "النقاء ليس مجرد امتناع، بل هو طاقة هائلة متفجرة توجهها نحو مستقبلك البرمجي والمالي.",
+        "المعاناة المؤقتة في الانضباط أهون بألف مرة من ألم الندم الأبدي في القاع.",
+        "تحدّث أقل، استمع أكثر، ونفّذ بصمت.. دع الأفعال والأرقام هي من تتكلم عنك.",
+        "القوة العقلية تُبنى عندما تستمر في العمل في الأيام التي تشعر فيها بالكسل التام."
+      ];
+
+      const phase3Pool = [
+        "أنت لست الشخص الذي بدأ هذه الرحلة.. عقلك حاد، وجسدك صلب، وهويتك لا تتزعزع.",
+        "الانضباط الآلي: افعل ما يجب عليك فعله بغض النظر عما تشعر به.",
+        "لقد اجتزت أصعب مراحل المقاومة العصبية.. أنت الآن في طور البناء الاستراتيجي للسيادة.",
+        "لا تنظر إلى الخلف أبداً.. القاع القديم لم يعد مكاناً يليق برجل مثلك.",
+        "كل يوم تلتزم فيه بالقرآن والصلوات والأهداف يرفعك درجات فوق ملايين المستسلمين."
+      ];
+
+      const phase4Pool = [
+        "العد التنازلي للظهور العظيم.. أيام معدودة وتخرج للعالم كنسخة لا يمكن التعرف عليها.",
+        "الهدوء المطلق والسكينة هما علامة القوة السيادية.. أكمل الأيام الأخيرة بأعلى درجات الدقة.",
+        "التحول تم بنجاح.. الآن ثبت هذه القواعد لتكون أسلوب حياتك لما بعد الـ Winter Arc.",
+        "استحضر دائماً كيف كنت في اليوم الأول وكيف أصبحت الآن.. فضل الله عليك عظيم."
+      ];
+
+      let pool;
+      if (dayNum <= 30) pool = phase1Pool;
+      else if (dayNum <= 90) pool = phase2Pool;
+      else if (dayNum <= 150) pool = phase3Pool;
+      else pool = phase4Pool;
+
+      return pool[dayNum % pool.length];
+    }
+
+    // ==========================================
+    // EMERGENCY SOS RELAPSE INTERVENTION SYSTEM
+    // ==========================================
+    initEmergencySystem() {
+      this.sosModal = document.getElementById('emergency-modal');
+      this.btnCloseSos = document.getElementById('btn-close-sos');
+      this.btnHeaderSos = document.getElementById('btn-emergency-sos');
+      this.btnInlineSos = document.getElementById('btn-trigger-sos-inline');
+      
+      this.breathCircle = document.getElementById('breath-circle');
+      this.breathText = document.getElementById('breath-text');
+      this.breathTimer = document.getElementById('breath-timer');
+      this.btnStartBreath = document.getElementById('btn-start-breath');
+
+      this.urgeTimerDisplay = document.getElementById('urge-timer-display');
+      this.urgeTimerGuidance = document.getElementById('urge-timer-guidance');
+      this.urgeTimerBarFill = document.getElementById('urge-timer-bar-fill');
+      this.btnStartUrgeTimer = document.getElementById('btn-start-urge-timer');
+      this.btnUrgeDefeated = document.getElementById('btn-urge-defeated');
+
+      this.breathInterval = null;
+      this.urgeTimerInterval = null;
+      this.urgeSecondsLeft = 300; // 5 minutes
+
+      // Open Modal Handlers
+      if (this.btnHeaderSos) {
+        this.btnHeaderSos.addEventListener('click', () => this.openEmergencyModal());
+      }
+      if (this.btnInlineSos) {
+        this.btnInlineSos.addEventListener('click', () => this.openEmergencyModal());
+      }
+
+      // Close Modal Handler
+      if (this.btnCloseSos) {
+        this.btnCloseSos.addEventListener('click', () => this.closeEmergencyModal());
+      }
+
+      // Close when clicking overlay backdrop outside container
+      if (this.sosModal) {
+        this.sosModal.addEventListener('click', (e) => {
+          if (e.target === this.sosModal) {
+            this.closeEmergencyModal();
+          }
+        });
+      }
+
+      // Breath Exercise Handler
+      if (this.btnStartBreath) {
+        this.btnStartBreath.addEventListener('click', () => this.startBreathExercise());
+      }
+
+      // Urge Surfing Timer Handler
+      if (this.btnStartUrgeTimer) {
+        this.btnStartUrgeTimer.addEventListener('click', () => this.startUrgeSurfingTimer());
+      }
+
+      // Urge Defeated Victory Handler
+      if (this.btnUrgeDefeated) {
+        this.btnUrgeDefeated.addEventListener('click', () => this.handleUrgeDefeated());
+      }
+    }
+
+    openEmergencyModal() {
+      if (!this.sosModal) return;
+      this.sound.playAlarm();
+      this.sosModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      // Reset Urge Timer display
+      this.urgeSecondsLeft = 300;
+      this.updateUrgeTimerUI();
+      if (this.urgeTimerBarFill) this.urgeTimerBarFill.style.width = '100%';
+    }
+
+    closeEmergencyModal() {
+      if (!this.sosModal) return;
+      this.sosModal.classList.remove('active');
+      document.body.style.overflow = '';
+      this.stopBreathExercise();
+      this.stopUrgeSurfingTimer();
+    }
+
+    // Physiological Sigh Cycle: 4s Inhale -> 1s Hold -> 6s Exhale (x3 Cycles)
+    startBreathExercise() {
+      this.stopBreathExercise();
+      let cycle = 1;
+      const totalCycles = 3;
+      let phase = 'inhale'; // inhale (4s), hold (1s), exhale (6s)
+      let phaseSeconds = 4;
+
+      if (this.btnStartBreath) {
+        this.btnStartBreath.disabled = true;
+        this.btnStartBreath.innerHTML = '<span>⏳</span> جاري تمرين التنفس...';
+      }
+
+      const applyPhase = () => {
+        if (!this.breathCircle || !this.breathText || !this.breathTimer) return;
+        this.breathCircle.classList.remove('inhale', 'hold', 'exhale');
+
+        if (phase === 'inhale') {
+          this.breathCircle.classList.add('inhale');
+          this.breathText.textContent = `شهيق عميق (${phaseSeconds}s)`;
+          this.breathTimer.textContent = `دورة ${cycle} من ${totalCycles} • املأ الرئتين`;
+        } else if (phase === 'hold') {
+          this.breathCircle.classList.add('hold');
+          this.breathText.textContent = `احبس النفس`;
+          this.breathTimer.textContent = `دورة ${cycle} من ${totalCycles} • هدوء تام`;
+        } else if (phase === 'exhale') {
+          this.breathCircle.classList.add('exhale');
+          this.breathText.textContent = `زفير بطيء (${phaseSeconds}s)`;
+          this.breathTimer.textContent = `دورة ${cycle} من ${totalCycles} • فرّغ التوتر`;
+        }
+      };
+
+      applyPhase();
+      this.sound.playTick();
+
+      this.breathInterval = setInterval(() => {
+        phaseSeconds--;
+
+        if (phase === 'inhale') {
+          if (phaseSeconds <= 0) {
+            phase = 'hold';
+            phaseSeconds = 1;
+            applyPhase();
+          } else {
+            if (this.breathText) this.breathText.textContent = `شهيق عميق (${phaseSeconds}s)`;
+          }
+        } else if (phase === 'hold') {
+          if (phaseSeconds <= 0) {
+            phase = 'exhale';
+            phaseSeconds = 6;
+            applyPhase();
+          }
+        } else if (phase === 'exhale') {
+          if (phaseSeconds <= 0) {
+            cycle++;
+            if (cycle > totalCycles) {
+              this.stopBreathExercise();
+              if (this.breathCircle) {
+                this.breathCircle.classList.remove('inhale', 'hold', 'exhale');
+              }
+              if (this.breathText) this.breathText.textContent = 'أحسنت! 🫁';
+              if (this.breathTimer) this.breathTimer.textContent = 'الأكسجين عاد لفصك الجبهي.. الآن اكبح الرغبة بالكامل!';
+              if (this.btnStartBreath) {
+                this.btnStartBreath.disabled = false;
+                this.btnStartBreath.innerHTML = '<span>🔄</span> إعادة تمرين التنفس الفسيولوجي';
+              }
+              this.sound.playChime();
+              return;
+            }
+            phase = 'inhale';
+            phaseSeconds = 4;
+            applyPhase();
+            this.sound.playTick();
+          } else {
+            if (this.breathText) this.breathText.textContent = `زفير بطيء (${phaseSeconds}s)`;
+          }
+        }
+      }, 1000);
+    }
+
+    stopBreathExercise() {
+      if (this.breathInterval) {
+        clearInterval(this.breathInterval);
+        this.breathInterval = null;
+      }
+      if (this.btnStartBreath) {
+        this.btnStartBreath.disabled = false;
+        this.btnStartBreath.innerHTML = '<span>▶️</span> ابدأ تمرين التنفس الفسيولوجي (3 دورات)';
+      }
+    }
+
+    // 5-Minute Urge Surfing Timer
+    startUrgeSurfingTimer() {
+      this.stopUrgeSurfingTimer();
+      this.urgeSecondsLeft = 300;
+      this.updateUrgeTimerUI();
+
+      if (this.btnStartUrgeTimer) {
+        this.btnStartUrgeTimer.disabled = true;
+        this.btnStartUrgeTimer.innerHTML = '<span>⏱️</span> المؤقت يعمل الآن.. اثبت!';
+      }
+
+      this.urgeTimerInterval = setInterval(() => {
+        this.urgeSecondsLeft--;
+        this.updateUrgeTimerUI();
+
+        if (this.urgeSecondsLeft <= 0) {
+          this.stopUrgeSurfingTimer();
+          if (this.urgeTimerGuidance) {
+            this.urgeTimerGuidance.textContent = '🎉 مرت الـ 5 دقائق! انكسرت موجة الدوبامين الرخيصة.. اضغط على زر النصر بالأسفل!';
+            this.urgeTimerGuidance.style.color = '#34d399';
+          }
+          this.sound.playVictory();
+        }
+      }, 1000);
+    }
+
+    stopUrgeSurfingTimer() {
+      if (this.urgeTimerInterval) {
+        clearInterval(this.urgeTimerInterval);
+        this.urgeTimerInterval = null;
+      }
+      if (this.btnStartUrgeTimer) {
+        this.btnStartUrgeTimer.disabled = false;
+        this.btnStartUrgeTimer.innerHTML = '<span>⏳</span> ابدأ مؤقت الصمود (5 دقائق)';
+      }
+    }
+
+    updateUrgeTimerUI() {
+      const minutes = Math.floor(this.urgeSecondsLeft / 60);
+      const seconds = this.urgeSecondsLeft % 60;
+      const formatted = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+      if (this.urgeTimerDisplay) {
+        this.urgeTimerDisplay.textContent = formatted;
+      }
+
+      if (this.urgeTimerBarFill) {
+        const pct = (this.urgeSecondsLeft / 300) * 100;
+        this.urgeTimerBarFill.style.width = `${pct}%`;
+      }
+
+      if (this.urgeTimerGuidance) {
+        if (this.urgeSecondsLeft > 240) {
+          this.urgeTimerGuidance.textContent = 'الموجة في ذروتها.. قف الآن وارمِ الهاتف بعيداً واغسل وجهك بالماء البارد!';
+        } else if (this.urgeSecondsLeft > 180) {
+          this.urgeTimerGuidance.textContent = 'تنفس بعمق.. الدم يعود تدريجياً للفص الجبهي.. عقلك يستعيد السيطرة الكاملة!';
+        } else if (this.urgeSecondsLeft > 120) {
+          this.urgeTimerGuidance.textContent = 'المستقبل الذي تحلم به في الـ Winter Arc لا يُباع مقابل 10 ثوانٍ من الذل.. اثبت مكانك!';
+        } else if (this.urgeSecondsLeft > 60) {
+          this.urgeTimerGuidance.textContent = 'الموجة الكيميائية بدأت تنكسر.. ضربات قلبك تهدأ، جسمك ينتصر على الاندفاع!';
+        } else if (this.urgeSecondsLeft > 0) {
+          this.urgeTimerGuidance.textContent = 'آخر ثوانٍ.. أنت سحقت شهوتك وأثبتت سيادتك.. استعد لإعلان النصر ورفع رأسك!';
+        }
+      }
+    }
+
+    handleUrgeDefeated() {
+      this.sound.playVictory();
+      this.confetti.burst();
+
+      // Automatically mark today's discipline as adhered and ghad basar habit
+      const day = this.getDay(this.currentDay);
+      day.discipline = 'adhered';
+      if (!day.habits) day.habits = {};
+      day.habits['ghad_basar'] = true;
+      this.saveData();
+      this.render();
+
+      if (this.btnUrgeDefeated) {
+        this.btnUrgeDefeated.innerHTML = '<span>🏆</span> نصر ساحق! تم تثبيت النقاء في سجل اليوم';
+        this.btnUrgeDefeated.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+      }
+
+      setTimeout(() => {
+        this.closeEmergencyModal();
+        if (this.btnUrgeDefeated) {
+          this.btnUrgeDefeated.innerHTML = '<span>🛡️</span> انتصرت وسحقت الشهوة!';
+          this.btnUrgeDefeated.style.background = '';
+        }
+      }, 2200);
     }
 
     // Import Data from JSON

@@ -56,17 +56,25 @@
           <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
           خريطة الـ 180 يوم والنسب
         </button>
+        <button class="nav-tab-btn" data-tab="codex">
+          <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          دليل الـ Winter Arc الشامل
+        </button>
         <button class="nav-tab-btn" data-tab="settings">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          النسخ الاحتياطي والإعدادات
+          الإعدادات والنسخ
         </button>
       </nav>
 
       <!-- Quick Action Controls -->
       <div class="header-actions">
+        <button id="btn-emergency-sos" class="emergency-sos-btn" title="بروتوكول الطوارئ - كسر الشهوة والانتكاسة فوراً">
+          <span class="sos-icon">🚨</span>
+          <span class="sos-text">بروتوكول الطوارئ</span>
+        </button>
         <button id="btn-install-pwa" class="primary-btn" style="padding: 0.45rem 0.85rem; font-size: 0.78rem;" title="تثبيت التطبيق على الشاشة الرئيسية كأيقونة">
           <span>📲</span>
-          <span>تثبيت التطبيق</span>
+          <span>تثبيت</span>
         </button>
         <button id="btn-toggle-sound" class="icon-btn active" title="تبديل مؤثرات الصوت (Web Audio)">
           🔊
@@ -126,6 +134,7 @@
           <div class="phase-tag-row">
             <span class="ghost-badge">🐺 وضع الاختفاء • GHOST MODE</span>
             <span id="ghost-phase-title" class="phase-name">المرحلة 1: كسر الإدمان والصدمة الأولى (الأيام 1 - 30)</span>
+            <span id="ghost-phase-day-status" class="phase-day-status"></span>
           </div>
           <p id="ghost-phase-motto" class="phase-motto">
             "الـ 6 شهور دول هتختفي فيهم عن الأنظار تماماً.. اللي هيشوفك بعدها مش هيعرفك."
@@ -139,6 +148,17 @@
           <div class="phase-progress-track">
             <div id="ghost-phase-bar" class="phase-progress-fill"></div>
           </div>
+        </div>
+      </section>
+
+      <!-- Daily Tactical Directive & Motivation Banner -->
+      <section class="daily-directive-banner glass-panel">
+        <div class="directive-content">
+          <div class="directive-header-row">
+            <span class="directive-icon">⚡</span>
+            <span class="directive-title">توجيه اليوم التكتيكي (<span id="directive-day-num">اليوم 1</span>):</span>
+          </div>
+          <p id="daily-directive-text" class="directive-body">جاري تحميل التوجيه...</p>
         </div>
       </section>
 
@@ -289,6 +309,10 @@
                   <span>تعثرت وسأنهض فوراً بلا أعذار</span>
                 </div>
               </div>
+              <button type="button" id="btn-trigger-sos-inline" class="sos-inline-trigger" title="اضغط فوراً في لحظة الضعف">
+                <span class="sos-inline-icon">🚨</span>
+                <span class="sos-inline-text">حاسس برغبة شديدة أو على وشك الانتكاس؟ اضغط هنا فوراً</span>
+              </button>
             </div>
 
             <!-- 4. وقود الجسد والحديد (Body, Fuel & Hypertrophy) -->
@@ -488,7 +512,212 @@
     </main>
 
     <!-- ====================================================================
-         VIEW 3: SETTINGS & BACKUP (100% OFFLINE LOCAL STORAGE)
+         VIEW 3: THE WINTER ARC CODEX (دليل الـ WINTER ARC الشامل والبحث المعمق)
+         ==================================================================== -->
+    <main id="view-codex" class="view-container">
+      <div class="codex-container">
+
+        <!-- Hero Manifesto Header -->
+        <section class="codex-hero glass-panel">
+          <div class="codex-hero-badge">🐺 الدستور والبحث المعمق • THE WINTER ARC MANIFESTO</div>
+          <h2 class="codex-hero-title">دليل التحول الشامل: كيف تصعد من القاع إلى القمة في 180 يوماً؟</h2>
+          <p class="codex-hero-subtitle">
+            "في الشتاء، يختبئ معظم البشر تحت البطانيات، مستسلمين للخمول والأكل والشهوات الرخيصة. أما أنت، فتختار الاختفاء في الظل لمدة 6 أشهر، تصهر عاداتك القديمة، وتخرج بنسخة جديدة كلياً لا يستطيع أحد أن يتجاهلها أو يكسرها."
+          </p>
+          <div class="codex-quick-stats">
+            <div class="codex-stat-item"><span class="num">180</span><span class="label">يوماً من العزلة المركزة</span></div>
+            <div class="codex-stat-item"><span class="num">6</span><span class="label">ركائز تحول صلبة</span></div>
+            <div class="codex-stat-item"><span class="num">4</span><span class="label">مراحل صهر وإعادة بناء</span></div>
+            <div class="codex-stat-item"><span class="num">0</span><span class="label">أعذار مقبولة</span></div>
+          </div>
+        </section>
+
+        <!-- Chapter 1: Philosophy of Disappearance -->
+        <section class="codex-card glass-panel">
+          <div class="codex-card-header">
+            <div class="codex-chapter-tag">الفصل الأول</div>
+            <h3 class="codex-card-title">🌪️ فلسفة الاختفاء التام (Ghost Mode) ولماذا الشتاء بالتحديد؟</h3>
+          </div>
+          <div class="codex-card-body">
+            <p>
+              الـ <strong>Winter Arc</strong> ليس مجرد تريند أو حماس مؤقت يستمر لأسبوع ثم ينطفئ؛ إنه <strong>بروتوكول تحول فيزيولوجي ونفسي صارم</strong> يستغل شروط الطبيعة في فصل الشتاء:
+            </p>
+            <div class="codex-grid-2">
+              <div class="codex-sub-box">
+                <h4>❄️ برودة الطقس وانكماش العالم</h4>
+                <p>في الشتاء يقل الخروج وتبرد الرغبة في التسكع، ويقضي الناس وقتاً أطول في الداخل. هذا التوقيت هو البيئة المثالية للعزلة الإنتاجية (Monk Mode)؛ بينما ينشغل الجميع بالسبات الشتوي، ترفع أنت من وتيرة تدريبك وعملك.</p>
+              </div>
+              <div class="codex-sub-box">
+                <h4>🤫 قانون الصمت وعدم إعلان الأهداف</h4>
+                <p>تثبت الأبحاث في علم النفس العصبي (Social Reality Theory) أن إخبار الناس بأهدافك يعطي عقلك مكافأة دوبامين وهمية تجعله يشعر كأنه أنجزها بالفعل، مما يخفض دافعك بنسبة 60%. في الـ Winter Arc: <em>اختفِ تماماً.. لا منشورات، لا تفاخر، لا وعود. دع النتائج هي التي تنطق في الربيع.</em></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Chapter 2: The 6 Unshakable Pillars -->
+        <section class="codex-card glass-panel">
+          <div class="codex-card-header">
+            <div class="codex-chapter-tag">الفصل الثاني</div>
+            <h3 class="codex-card-title">🏛️ الركائز الست التي لا تقبل التفاوض (The 6 Pillars)</h3>
+          </div>
+          <div class="codex-card-body">
+            
+            <div class="codex-pillar-item">
+              <div class="pillar-num">1</div>
+              <div class="pillar-content">
+                <h4>🥩 البناء الجسدي والتغذية الفائضة (Hypertrophy & Fuel Matrix)</h4>
+                <p><strong>المعادلة:</strong> 3500 سعرة حرارية نظيفة + 150-180 جرام بروتين يومياً + 3.5 لتر ماء.</p>
+                <p><strong>الأساس العلمي:</strong> زيادة الكتلة العضلية ليست للشكل فقط؛ الألياف العضلية تفرز هرمونات عصبية تُدعى <em>Myokines</em> تعزز الذاكرة وتكافح الاكتئاب، كما يرفع تدريب الأوزان الثقيل مستويات هرمون التستوستيرون الطبيعي، مما يمنحك حضوراً جسدياً واثقاً (Physical Dominance) وصلابة ذهنية تقضي على التردد.</p>
+              </div>
+            </div>
+
+            <div class="codex-pillar-item">
+              <div class="pillar-num">2</div>
+              <div class="pillar-content">
+                <h4>🛡️ النقاء التام وفطام الدوبامين الرخيص (Dopamine Fasting & Purity)</h4>
+                <p><strong>المعادلة:</strong> إيقاف الإباحية (PMO)، قطع التصفح العشوائي (Doomscrolling)، والتوقف عن استجداء الإعجاب على الشاشات.</p>
+                <p><strong>الأساس العلمي:</strong> الإباحية لثلاث سنوات تُدمر مستقبلات الدوبامين D2 في مركز المكافأة (Nucleus Accumbens)، مما يسبب تبلداً (Anhedonia) وكسلاً وضباباً عقلياً. التوقف الصارم لـ 90 يوماً يعيد بناء المستقبلات العصبية (Up-regulation)، فتعود المتعة الطبيعية للقراءة والعمل والتمرين، وتسترد احترامك الذاتي.</p>
+              </div>
+            </div>
+
+            <div class="codex-pillar-item">
+              <div class="pillar-num">3</div>
+              <div class="pillar-content">
+                <h4>🎯 العمل العميق والحرية المالية (Monk Mode Deep Work)</h4>
+                <p><strong>المعادلة:</strong> 4 ساعات يومياً من التركيز المتواصل بدون هاتف، مخصصة لمهارة تقنية عالية الدخل أو بناء مشروعك الخاص.</p>
+                <p><strong>الأساس العلمي:</strong> قاعدة الـ 4 ساعات العميقة تنتج مخرجات تعادل 10 ساعات من العمل المشوش. النجاح المالي يتطلب بناء أصول في صمت، والـ Winter Arc هو الحاضنة التي تُنشئ فيها مستقبلك المهني بعيداً عن المشتتين.</p>
+              </div>
+            </div>
+
+            <div class="codex-pillar-item">
+              <div class="pillar-num">4</div>
+              <div class="pillar-content">
+                <h4>🧊 الصلابة الذهنية والتأقلم مع عدم الراحة (Voluntary Discomfort)</h4>
+                <p><strong>المعادلة:</strong> الدش البارد يومياً، الاستيقاظ في الموعد المحدد، والتدريب حتى حين لا ترغب في ذلك.</p>
+                <p><strong>الأساس العلمي:</strong> صدمة الماء البارد ترفع مستويات الدوبامين والنورإبينفرين بنسبة 250% بشكل مستمر لعدة ساعات دون حدوث هبوط مفاجئ (Dopamine Crash). إنها تدرب الفص الجبهي على قتل التردد واتخاذ القرار في أقل من ثانيتين.</p>
+              </div>
+            </div>
+
+            <div class="codex-pillar-item">
+              <div class="pillar-num">5</div>
+              <div class="pillar-content">
+                <h4>🕌 الدرع الروحي والأخلاقي (Spiritual Anchor)</h4>
+                <p><strong>المعادلة:</strong> الصلوات الخمس في أوقاتها، ورد القرآن اليومي مع التدبر، وأذكار الصباح والمساء، وغض البصر التام.</p>
+                <p><strong>الأساس الروحي:</strong> الإنسان جسد وعقل وروح؛ إهمال الروح يورث وحشة داخلية يبحث الدماغ عن ملئها بالشهوة الرخيصة. الصلاة في وقتها محطة إعادة ضبط واستمداد للقوة من الله، والقرآن غسيل للصدر من سموم الدنيا.</p>
+              </div>
+            </div>
+
+            <div class="codex-pillar-item">
+              <div class="pillar-num">6</div>
+              <div class="pillar-content">
+                <h4>📝 المحاسبة اليومية الصارمة (Ruthless Daily Audit)</h4>
+                <p><strong>المعادلة:</strong> الإجابة الصادقة كل ليلة على الأسئلة الأربعة في دفترك دون تجميل أو اختلاق أعذار.</p>
+                <p><strong>الأساس النفسي:</strong> ما لا يُقاس لا يتحسن. الكتابة باليد تحوّل المشاعر الغامضة إلى بيانات واضحة؛ حين تسجل أنك تعثرت أو أنك أنجزت 70%، يتعلم عقلك تحمل المسؤولية الكاملة عن حياته.</p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Chapter 3: Neurobiology of Urges & SOS -->
+        <section class="codex-card glass-panel">
+          <div class="codex-card-header">
+            <div class="codex-chapter-tag">الفصل الثالث</div>
+            <h3 class="codex-card-title">🧠 بيولوجيا الشهوة: ماذا يحدث في دماغك ولماذا يُفصل العقل؟</h3>
+          </div>
+          <div class="codex-card-body">
+            <p>
+              حين يقول المحارب: <em>"عقلي بيكون مفصول لأن الدم بينزل تحت"</em>، فهذا ليس مجازاً، بل <strong>حقيقة عصبية وفسيولوجية مثبتة علمياً</strong>:
+            </p>
+            <div class="codex-step-box">
+              <h4>1. الاختطاف الحوفي (Limbic Hijacking)</h4>
+              <p>حين يتعرض الدماغ لمثير (صورة، تذكر، ملل، تعب)، تنفجر اللوزة الدماغية (Amygdala) ومراكز المكافأة بطلب جرعة دوبامين عاجلة. يحدث عندها انقباض في الأوعية الدموية المغذية للفص الجبهي (Prefrontal Cortex) المسؤول عن المنطق والإرادة، ويتدفق الدم للأعضاء التناسلية وللجهاز العضلي. النتيجة: <strong>ينطفئ العقل العاقل، ويقود الحيوان الغريزي المشهد.</strong></p>
+            </div>
+            <div class="codex-step-box">
+              <h4>2. كيف تكسر الاختطاف وتستعيد السيطرة في 60 ثانية؟</h4>
+              <p>
+                لا يمكنك محاربة فكرة بفكرة في لحظة الهبوط الحوفي؛ عليك استخدام <strong>أمر جسدي ميكانيكي</strong>:
+              </p>
+              <ul class="codex-list">
+                <li><strong>رمي الهاتف والوقوف فوراً:</strong> كسر الوضعية الجسدية (Broken Pattern) يمنع اليد من الاستمرار في البحث.</li>
+                <li><strong>الماء البارد على الوجه:</strong> تفعيل منعكس الغطس عند الثدييات (Mammalian Dive Reflex)؛ يخفض نبضات القلب بنسبة 20-30% فوراً ويعيد توجيه الدم للمخ.</li>
+                <li><strong>التنفس الفسيولوجي (Physiological Sigh):</strong> شهيق عميق من الأنف، ثم شهيق إضافي سريع، ثم زفير طويل مريح من الفم. ثلاث دورات فقط تعيد توازن الأكسجين وثاني أكسيد الكربون وتعيد تشغيل الفص الجبهي فوراً.</li>
+                <li><strong>ركوب الموجة (Urge Surfing):</strong> الشهوة في كيمياء الدماغ مثل موجة البحر؛ تصعد لمدة 3-5 دقائق وتصل لقمتها، وإذا لم تغذّها بنظرات أو لمسات، <em>تموت وتتلاشى تماماً</em>.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Chapter 4: The 180-Day 4-Phase Roadmap -->
+        <section class="codex-card glass-panel">
+          <div class="codex-card-header">
+            <div class="codex-chapter-tag">الفصل الرابع</div>
+            <h3 class="codex-card-title">🗺️ خريطة الـ 180 يوماً بالتفصيل والمحطات الزمنية</h3>
+          </div>
+          <div class="codex-card-body">
+            <div class="roadmap-phase-cards">
+              <div class="phase-detail-card phase-1">
+                <div class="phase-detail-badge">المرحلة الأولى • الأيام 1 إلى 30</div>
+                <h4>التطهير وفطام الدوبامين (The Purge & Detox)</h4>
+                <p><strong>التركيز:</strong> النقاء التام من الـ PMO، تثبيت الصلوات الخمس في المسجد/وقتها، وبدء استهلاك الـ 3500 سعرة حرارية والتدريب المنتظم.</p>
+                <p><strong>التحدي الأكبر:</strong> أعراض الانسحاب الحادة، الصداع، والوساوس الشيطانية بأنك لن تستطيع التحمل.</p>
+                <p><strong>المكسب في اليوم 30:</strong> انقشاع الضباب العقلي، استعادة طاقة الاستيقاظ الصباحي، وإثبات القدرة لنفسك.</p>
+              </div>
+
+              <div class="phase-detail-card phase-2">
+                <div class="phase-detail-badge">المرحلة الثانية • الأيام 31 إلى 90</div>
+                <h4>الصهر وبناء الكتلة والمهارات (The Forge & Hypertrophy)</h4>
+                <p><strong>التركيز:</strong> رفع أوزان أثقل في الجيم، زيادة الكتلة العضلية، تثبيت 4 ساعات عمل عميق يومياً، وحفظ ورد ثابت من القرآن.</p>
+                <p><strong>التحدي الأكبر:</strong> الملل من الروتين اليومي المتكرر وتسطح المشاعر (Flatline)؛ تذكر أن هذا التسطح هو عملية إعادة تشبيك الدماغ العصبية.</p>
+                <p><strong>المكسب في اليوم 90:</strong> تحول ملحوظ في شكل الجسد (عضلات واضحة وقوة ملحوظة)، اكتمال التعافي العصبي بنسبة 80%، وتحقيق تقدم مالي/مهني ملموس.</p>
+              </div>
+
+              <div class="phase-detail-card phase-3">
+                <div class="phase-detail-badge">المرحلة الثالثة • الأيام 91 إلى 150</div>
+                <h4>الصلابة الذهنية والتفوق النخبوي (The Hardening & Apex)</h4>
+                <p><strong>التركيز:</strong> الانضباط لم يعد مجهوداً بل أصبح جزءاً من هويتك؛ العمل على مشاريع كبيرة، وتدريب متقدم، ونقاء روحي راسخ.</p>
+                <p><strong>التحدي الأكبر:</strong> الغرور الزائف أو الاعتقاد بأنك تغلبت على الإدمان نهائياً؛ تذكر أن الثبات يتطلب يقظة دائمة.</p>
+                <p><strong>المكسب في اليوم 150:</strong> أنت الآن في شريحة الـ 1% من الشباب؛ ثقة داخلية هائلة، هدوء نفسي، ونظرة ثاقبة للمستقبل.</p>
+              </div>
+
+              <div class="phase-detail-card phase-4">
+                <div class="phase-detail-badge">المرحلة الرابعة • الأيام 151 إلى 180</div>
+                <h4>التجلي والتحول التام (The Metamorphosis & Re-emergence)</h4>
+                <p><strong>التركيز:</strong> إكمال الـ 180 يوماً بنسبة إنجاز تفوق 80%، وتثبيت نمط الحياة الجديد كعادة أبدية وليس كفترة وتنتهي.</p>
+                <p><strong>المكسب في اليوم 180:</strong> يوم الخروج إلى النور.. الشخص الذي رآك قبل 6 أشهر لن يعرفك. جسد قوي، عقل حاد، روح متصلة بربها، ومستقبل مشرق.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Chapter 5: The 10 Iron Laws -->
+        <section class="codex-card glass-panel">
+          <div class="codex-card-header">
+            <div class="codex-chapter-tag">الفصل الخامس</div>
+            <h3 class="codex-card-title">⚔️ القوانين العشرة الصارمة لمحارب الـ Winter Arc</h3>
+          </div>
+          <div class="codex-card-body">
+            <ol class="codex-iron-laws">
+              <li><strong>قانون الصمت:</strong> لا تخبر أحداً بما تفعله. الصمت يجمع الطاقة، والكلام يبددها.</li>
+              <li><strong>قانون الصلاة:</strong> إذا ضاعت صلاتك، ضاع يومك. الصلاة هي عامود الخيمة ومركز الثبات.</li>
+              <li><strong>قانون النقاء:</strong> النظرة سهم مسموم. اغمض عينك، لا تلمس هاتفك في الفراش، واحمِ عقلك كحصن عسكري.</li>
+              <li><strong>قانون الوقود:</strong> لا تنم قبل أن تضمن الـ 3500 سعرة والـ 150g بروتين. جسدك هو سلاحك، أطعمه جيداً.</li>
+              <li><strong>قانون الأوزان:</strong> ارفع حديداً يجعلك تحترم قوتك. الوجع في الصالة أفضل ألف مرة من وجع الندم.</li>
+              <li><strong>قانون العمل:</strong> 4 ساعات عمل عميق بدون إشعارات تساوي مستقبلك المالي بالكامل.</li>
+              <li><strong>قانون البرد:</strong> واجه الماء البارد كل صباح، لتعلم عقلك أنك تقود ولا تخضع للأهواء.</li>
+              <li><strong>قانون المحاسبة:</strong> اكتب كل ليلة بصدق كامل. لا تكذب على نفسك أبداً، فالكذب يطيل البقاء في القاع.</li>
+              <li><strong>قانون السقوط:</strong> إذا تعثرت يوماً، لا تجعل التعثر يتحول لسقوط. قم في نفس الثانية، استغفر، وعُد للمعركة.</li>
+              <li><strong>قانون العودة:</strong> تذكر دائماً: 180 يوماً من الألم تصنع رجلاً يعيش ملكاً لبقية حياته.</li>
+            </ol>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         VIEW 4: SETTINGS & BACKUP (100% OFFLINE LOCAL STORAGE)
          ==================================================================== -->
     <main id="view-settings" class="view-container">
       <div class="settings-grid">
@@ -552,6 +781,89 @@
       </div>
     </main>
 
+  </div>
+
+  <!-- Emergency Relapse Intervention Overlay (SOS Protocol) -->
+  <div id="emergency-modal" class="emergency-overlay">
+    <div class="emergency-container glass-panel">
+      <div class="emergency-header">
+        <div class="emergency-pulse-badge">🚨 حالة طوارئ قصوى: كسر الانتكاسة فوراً</div>
+        <button type="button" id="btn-close-sos" class="emergency-close-btn" title="إغلاق">✕</button>
+      </div>
+
+      <!-- Step 1: Physical Stop Command -->
+      <div class="sos-card danger-card">
+        <div class="sos-card-icon">🛑</div>
+        <div class="sos-card-content">
+          <h4>الخطوة 1: سيب الموبايل من إيدك حالاً!</h4>
+          <p>ارمي التليفون على السرير أو الترابيزة.. متفكرش ولا ثانية، قوم اقف واخرج من الأوضة أو اغسل وشك بماء بارد متلج لتنشيط العصب الحائر فوراً.</p>
+        </div>
+      </div>
+
+      <!-- Step 2: Interactive Physiological Sigh Breath Pacer -->
+      <div class="sos-card breath-card">
+        <div class="breath-header">
+          <span class="sos-card-icon">🫁</span>
+          <h4>الخطوة 2: التنفس الفسيولوجي لإعادة تشغيل الفص الجبهي</h4>
+        </div>
+        <p class="breath-desc">لما الشهوة تشتعل، الدم بينزل تحت والفص الجبهي المسؤول عن الإرادة بيتقفل. التنفس ده بيعيد الأكسجين لمخك ويطرد حلقة التوتر في 60 ثانية.</p>
+        
+        <div class="breath-visualizer">
+          <div id="breath-circle" class="breath-circle">
+            <span id="breath-text" class="breath-state-text">اضغط للبدء</span>
+            <span id="breath-timer" class="breath-subtext">3 دورات تنفس</span>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 0.75rem;">
+          <button type="button" id="btn-start-breath" class="primary-btn" style="padding: 0.5rem 1.2rem;">
+            <span>▶️</span> ابدأ تمرين التنفس الفسيولوجي (3 دورات)
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Hard-Hitting Reality Shock -->
+      <div class="sos-card reality-card">
+        <div class="sos-card-icon">⚔️</div>
+        <div class="sos-card-content">
+          <h4>الخطوة 3: صدمة الواقع.. افتكر أنت مين وبتحارب إيه!</h4>
+          <ul class="reality-bullets">
+            <li><strong>الـ 10 ثواني متعة وهمية:</strong> هتسيب وراها 3 أيام خزي، وتكسر درع نقاءك، وترجعك لنقطة الصفر في القاع.</li>
+            <li><strong>3 سنين كفاية:</strong> أنت عشت في جحيم الإدمان ده 3 سنين، هل مستعد تبيع رجولتك ومستقبلك عشان شوية بيكسلز ملهاش وجود؟</li>
+            <li><strong>الشهوة مجرد كذبة كيميائية:</strong> الدوبامين بيخدعك إنك بتموت لو معملتش كدة، لكن الحقيقة إن الرغبة موجة بتاخد 5 دقايق وبتموت لوحدها.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 4: 5-Minute Urge Surfing Timer -->
+      <div class="sos-card timer-card">
+        <div class="timer-header-row">
+          <span class="sos-card-icon">⏱️</span>
+          <div>
+            <h4>الخطوة 4: مؤقت ركوب الموجة (Urge Surfing - 5 دقائق)</h4>
+            <p class="timer-desc">اقعد بعيد عن الشاشة وراقب الرغبة وهي بتموت دقيقة بدقيقة بدون استجابة:</p>
+          </div>
+        </div>
+
+        <div class="timer-display-box">
+          <div id="urge-timer-display" class="urge-countdown">05:00</div>
+          <div id="urge-timer-guidance" class="urge-guidance-text">اضغط على زر البدء واصمد 5 دقائق فقط.. الرغبة هتنزل للصفر.</div>
+          <div class="urge-timer-bar-track">
+            <div id="urge-timer-bar-fill" class="urge-timer-bar-fill"></div>
+          </div>
+        </div>
+
+        <div class="timer-actions-row">
+          <button type="button" id="btn-start-urge-timer" class="secondary-btn">
+            <span>⏳</span> ابدأ مؤقت الصمود (5 دقائق)
+          </button>
+          <button type="button" id="btn-urge-defeated" class="victory-sos-btn">
+            <span>🛡️</span> انتصرت وسحقت الشهوة!
+          </button>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <!-- Reusable Modal Overlay -->
