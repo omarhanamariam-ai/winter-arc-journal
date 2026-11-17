@@ -3,7 +3,7 @@
  * 100% Offline Capability (Network-First for HTML, Cache-First for Assets)
  */
 
-const CACHE_NAME = 'winter-arc-cache-v5-codex-sos';
+const CACHE_NAME = 'winter-arc-cache-v6-goggins';
 
 const ASSETS_TO_CACHE = [
   './',

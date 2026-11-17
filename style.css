@@ -2625,3 +2625,405 @@ body {
     padding: 1.1rem;
   }
 }
+/* ==========================================================================
+   DAVID GOGGINS IDENTITY OVERRIDE
+   Iron Dark / Blood Red / Hardened Steel Visual Identity
+   STAY HARD — 180 DAYS
+   ========================================================================== */
+
+/* Root Override: Replace Cyan/Ice with Iron/Blood/Steel */
+:root {
+  --bg-main: #050507;
+  --bg-gradient: radial-gradient(circle at 50% -10%, #1a0505 0%, #090909 55%, #030305 100%);
+  --surface-card: rgba(15, 10, 10, 0.80);
+  --surface-card-hover: rgba(28, 18, 18, 0.90);
+  --surface-elevated: rgba(22, 14, 14, 0.92);
+  --surface-glass-border: rgba(220, 38, 38, 0.18);
+  --surface-glass-border-strong: rgba(220, 38, 38, 0.45);
+
+  /* Goggins Accent: Blood Red + Steel Grey */
+  --accent-cyan: #dc2626;
+  --accent-cyan-glow: rgba(220, 38, 38, 0.45);
+  --accent-teal: #9ca3af;
+  --accent-ice: #f9fafb;
+  --accent-blue-deep: #b91c1c;
+
+  --color-success: #16a34a;
+  --color-success-glow: rgba(22, 163, 74, 0.35);
+  --color-warning: #d97706;
+  --color-gold: #f59e0b;
+  --color-gold-glow: rgba(245, 158, 11, 0.5);
+  --color-danger: #dc2626;
+  --color-danger-glow: rgba(220, 38, 38, 0.45);
+
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --shadow-glow: 0 0 25px rgba(220, 38, 38, 0.35);
+}
+
+/* Goggins Brand Icon */
+.brand-icon { font-size: 2.4rem; filter: drop-shadow(0 0 12px rgba(220,38,38,0.6)); }
+
+/* Brand Title — Iron Typography */
+.main-header h1 {
+  letter-spacing: 0.08em;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.main-header .highlight {
+  color: var(--accent-cyan);
+  text-shadow: 0 0 20px rgba(220, 38, 38, 0.6);
+}
+.brand-tagline {
+  font-size: 0.72rem !important;
+  letter-spacing: 0.05em;
+  color: #71717a;
+  text-transform: uppercase;
+}
+
+/* Nav Tab Active — Red glow instead of cyan */
+.nav-tab-btn.active {
+  color: #dc2626 !important;
+  border-bottom-color: #dc2626 !important;
+}
+.nav-tab-btn:hover { color: #ef4444; }
+
+/* Progress Bar — Red */
+.bar-fill {
+  background: linear-gradient(90deg, #991b1b, #dc2626, #ef4444) !important;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.5) !important;
+}
+
+/* Phase Progress Fill — Goggins Red */
+.phase-progress-fill {
+  background: linear-gradient(90deg, #7f1d1d, #dc2626, #f87171) !important;
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.5) !important;
+}
+
+/* Ghost Badge → Goggins Badge */
+.ghost-badge {
+  background: rgba(220, 38, 38, 0.15) !important;
+  border-color: rgba(220, 38, 38, 0.4) !important;
+  color: #ef4444 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em;
+}
+
+/* Phase motto text */
+.phase-motto { color: #9ca3af; font-style: italic; }
+
+/* Primary buttons — Iron Red */
+.primary-btn {
+  background: linear-gradient(135deg, #991b1b, #dc2626) !important;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35) !important;
+}
+.primary-btn:hover {
+  background: linear-gradient(135deg, #b91c1c, #ef4444) !important;
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5) !important;
+  transform: translateY(-2px);
+}
+
+/* Streak pill */
+.streak-pill .icon { filter: drop-shadow(0 0 6px rgba(220, 38, 38, 0.6)); }
+
+/* Auto day indicator */
+#auto-day-indicator {
+  background: rgba(220, 38, 38, 0.15) !important;
+  border-color: rgba(220, 38, 38, 0.3) !important;
+  color: #ef4444 !important;
+}
+
+/* Daily Directive Banner — Goggins Red border */
+.daily-directive-banner {
+  border: 1px solid rgba(220, 38, 38, 0.3) !important;
+  background: rgba(30, 8, 8, 0.6) !important;
+}
+.directive-icon { color: #dc2626; }
+
+/* Prayer button active state */
+.prayer-btn.checked {
+  background: linear-gradient(135deg, #991b1b, #dc2626) !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 12px rgba(220, 38, 38, 0.4) !important;
+}
+
+/* Discipline option selected */
+.discipline-option.selected-positive {
+  background: rgba(220, 38, 38, 0.15) !important;
+  border-color: #dc2626 !important;
+  color: #ef4444 !important;
+}
+
+/* Habit card completed */
+.habit-card.completed {
+  border-color: rgba(220, 38, 38, 0.4) !important;
+  background: rgba(30, 8, 8, 0.65) !important;
+}
+.habit-card.completed .custom-checkbox {
+  background: #dc2626 !important;
+}
+.custom-checkbox.checked { background: #dc2626 !important; }
+
+/* Deep Work hour buttons active */
+.dw-hour-btn.active, .water-cup-btn.active, .fuel-toggle-btn.active, .btn-cold-shower.active {
+  background: rgba(220, 38, 38, 0.2) !important;
+  border-color: #dc2626 !important;
+  color: #ef4444 !important;
+}
+
+/* Rating stars — Red glow */
+.rating-btn.active { color: #dc2626 !important; }
+
+/* Satisfaction btns */
+.satisfaction-btn.active {
+  background: rgba(220, 38, 38, 0.15) !important;
+  border-color: #dc2626 !important;
+}
+
+/* Weather pill active */
+.weather-pill.active {
+  background: rgba(220, 38, 38, 0.15) !important;
+  border-color: #dc2626 !important;
+}
+
+/* Matrix grid: filled squares → Red */
+.grid-cell-inner[data-pct]:not([data-pct="0"]) {
+  box-shadow: inset 0 0 0 100px rgba(220, 38, 38, var(--opacity, 0.6)) !important;
+}
+
+/* TODAY badge in matrix */
+.cell-today-ring { border-color: #dc2626 !important; box-shadow: 0 0 10px rgba(220,38,38,0.5) !important; }
+
+/* Autosave pill */
+.autosave-pill { background: rgba(220, 38, 38, 0.18) !important; border-color: rgba(220, 38, 38, 0.4) !important; }
+
+/* ==========================================
+   GOGGINS CODEX IDENTITY STYLES
+   ========================================== */
+
+.goggins-hero {
+  background: linear-gradient(135deg, rgba(30, 5, 5, 0.9), rgba(10, 5, 5, 0.95)) !important;
+  border: 1px solid rgba(220, 38, 38, 0.4) !important;
+  box-shadow: 0 0 40px rgba(220, 38, 38, 0.1), inset 0 0 60px rgba(0,0,0,0.5) !important;
+}
+
+.goggins-title {
+  font-size: 2rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  color: #fff !important;
+  text-shadow: 0 0 30px rgba(220, 38, 38, 0.5) !important;
+}
+
+.goggins-quote {
+  color: #9ca3af !important;
+  font-style: italic;
+  border-right: 3px solid #dc2626;
+  padding-right: 1rem;
+}
+
+.goggins-identity-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+.goggins-stat {
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: #ef4444;
+  padding: 0.3rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.goggins-card {
+  border-color: rgba(220, 38, 38, 0.2) !important;
+}
+.goggins-tag {
+  background: rgba(220, 38, 38, 0.15) !important;
+  color: #ef4444 !important;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.goggins-quote-block {
+  background: rgba(30, 5, 5, 0.6);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: 0.75rem;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.2rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #f4f4f5;
+  line-height: 1.8;
+  position: relative;
+}
+.gq-mark {
+  font-size: 2.5rem;
+  color: rgba(220, 38, 38, 0.4);
+  font-family: Georgia, serif;
+  line-height: 0;
+  vertical-align: -0.5rem;
+}
+
+.goggins-sub-box {
+  background: rgba(25, 8, 8, 0.6) !important;
+  border-color: rgba(220, 38, 38, 0.15) !important;
+}
+.goggins-sub-box h4 { color: #ef4444 !important; }
+
+.goggins-action-box {
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 0.6rem;
+  padding: 1rem 1.2rem;
+  margin-top: 1.2rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: #d1d5db;
+}
+.goggins-action-box strong { color: #ef4444; }
+
+/* Goggins Quotes Grid */
+.goggins-quotes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.75rem;
+}
+.gq-item {
+  background: rgba(25, 8, 8, 0.7);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-right: 3px solid #dc2626;
+  border-radius: 0.5rem;
+  padding: 0.9rem 1rem;
+  font-size: 0.88rem;
+  color: #d1d5db;
+  font-style: italic;
+  line-height: 1.6;
+  transition: all 200ms ease;
+}
+.gq-item:hover {
+  background: rgba(35, 10, 10, 0.85);
+  border-right-color: #ef4444;
+  transform: translateX(-3px);
+  color: #f4f4f5;
+}
+
+/* Goggins Iron Laws */
+.goggins-iron-laws li {
+  border-right: 3px solid #dc2626 !important;
+  background: rgba(25, 8, 8, 0.6) !important;
+}
+.goggins-iron-laws li strong { color: #ef4444 !important; }
+
+/* ==========================================
+   PRAYER CODEX STYLES
+   ========================================== */
+
+.prayer-codex-card {
+  border-color: rgba(16, 185, 129, 0.2) !important;
+  background: linear-gradient(135deg, rgba(5, 15, 10, 0.85), rgba(5, 10, 8, 0.9)) !important;
+}
+
+.prayer-tag {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-size: 1rem !important;
+}
+
+.prayer-hero-quote {
+  background: rgba(5, 25, 15, 0.7);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.prayer-ayah {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #d1fae5;
+  line-height: 2;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  direction: rtl;
+}
+.prayer-ref {
+  font-size: 0.85rem;
+  color: #6ee7b7;
+  margin-top: 0.5rem;
+  letter-spacing: 0.03em;
+}
+
+.prayer-sub-box {
+  background: rgba(5, 20, 12, 0.6) !important;
+  border-color: rgba(16, 185, 129, 0.15) !important;
+}
+.prayer-sub-box h4 { color: #34d399 !important; }
+.prayer-sub-box .codex-list li strong { color: #6ee7b7; }
+
+/* Prayer Times Breakdown Grid */
+.prayer-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.prayer-time-card {
+  background: rgba(5, 20, 12, 0.6);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+  transition: all 220ms ease;
+}
+.prayer-time-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.1);
+}
+.prayer-time-icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
+.prayer-time-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #d1fae5;
+  margin-bottom: 0.5rem;
+}
+.prayer-time-benefit {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  line-height: 1.6;
+}
+.fajr-card { border-top: 2px solid #fbbf24; }
+.dhuhr-card { border-top: 2px solid #f59e0b; }
+.asr-card { border-top: 2px solid #ef4444; }
+.maghrib-card { border-top: 2px solid #818cf8; }
+.isha-card { border-top: 2px solid #38bdf8; }
+
+/* Phase cards updated */
+.phase-1 { border-top-color: #dc2626 !important; }
+.phase-2 { border-top-color: #d97706 !important; }
+.phase-3 { border-top-color: #9ca3af !important; }
+.phase-4 { border-top-color: #16a34a !important; }
+.phase-detail-badge {
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: #ef4444;
+}
+
+/* Codex chapter tag default */
+.codex-chapter-tag {
+  background: rgba(220, 38, 38, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+}
+
+/* SOS Button — stays red but more Goggins */
+.emergency-sos-btn {
+  background: rgba(185, 28, 28, 0.25) !important;
+  border-color: rgba(220, 38, 38, 0.6) !important;
+  color: #ef4444 !important;
+}
