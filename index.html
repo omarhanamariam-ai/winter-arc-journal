@@ -1,6 +1,28 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+  <!-- Instant Self-Healing Cache Buster & Auto-Update -->
+  <script>
+    (function() {
+      try {
+        const CURRENT_BUILD = 'v8.3-glowup-restored';
+        const lastBuild = localStorage.getItem('WINTER_ARC_LAST_BUILD');
+        if (lastBuild !== CURRENT_BUILD) {
+          localStorage.setItem('WINTER_ARC_LAST_BUILD', CURRENT_BUILD);
+          if (typeof window !== 'undefined' && 'caches' in window && window.caches && (window.location.protocol === 'http:' || window.location.protocol === 'https:')) {
+            caches.keys().then(function(names) {
+              names.forEach(function(name) { caches.delete(name); });
+            }).catch(function() {});
+          }
+          if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator && (window.location.protocol === 'http:' || window.location.protocol === 'https:')) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              regs.forEach(function(r) { r.unregister(); });
+            }).catch(function() {});
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>STAY HARD | 180 يوم | David Goggins Method</title>
@@ -17,7 +39,7 @@
   <meta name="apple-mobile-web-app-title" content="STAY HARD" />
 
   <!-- Local Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=7.0" />
+  <link rel="stylesheet" href="style.css?v=8.3" />
 </head>
 <body>
 
@@ -52,6 +74,14 @@
           <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           اليوميّات وجدول اليوم
         </button>
+        <button class="nav-tab-btn" data-tab="bulk">
+          <svg viewBox="0 0 24 24"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg>
+          بروتوكول التضخيم والحديد
+        </button>
+        <button class="nav-tab-btn" data-tab="vault">
+          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          خزانة الشبح وتوثيق التحول
+        </button>
         <button class="nav-tab-btn" data-tab="matrix">
           <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
           خريطة الـ 180 يوم والنسب
@@ -76,7 +106,10 @@
           <span>📲</span>
           <span>تثبيت</span>
         </button>
-        <button id="btn-toggle-sound" class="icon-btn active" title="تبديل مؤثرات الصوت (Web Audio)">
+        <button id="btn-force-refresh-cache" class="icon-btn" title="تفريغ الكاش وتحديث الموقع فوراً (Hard Refresh)" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; font-size: 1rem;">
+          🔄
+        </button>
+        <button id="btn-toggle-sound"  class="icon-btn active" title="تبديل مؤثرات الصوت (Web Audio)">
           🔊
         </button>
         <button id="btn-toggle-snow" class="icon-btn active" title="تبديل تساقط الثلج (Winter Arc Ambient)">
@@ -211,7 +244,7 @@
                 <span class="journal-prompt-title">تشريح الجسد والوقود (Physical & Fuel Dominance)</span>
               </div>
               <p class="journal-prompt-guide">
-                هل أكلت الـ 3500 سعرة والبروتين وتمرنت كشخص بيبني جسد مقاتل؟ وإيه كان عذرك لو قصرت؟
+                هل أكلت الـ 2850 سعرة والـ 135 جم بروتين وأخذت وقود ما قبل التمرين بدون هبوط؟ وإيه كان عذرك لو قصرت؟
               </p>
               <textarea id="journal_feelings" class="journal-textarea" placeholder="عدد السعرات، جرامات البروتين، أوزان الجيم، الدش البارد... مفيش مكان للأعذار هنا."></textarea>
             </div>
@@ -244,16 +277,12 @@
             <!-- 1. الصلاة -->
             <div style="display: flex; flex-direction: column; gap: 0.65rem;">
               <div class="prayers-header-row">
-                <span class="prayers-title-label">🕌 الصلوات الخمس (الحصن العصبي والروحي)</span>
+                <span class="prayers-title-label">🕌 صلوات اليوم المفروضة (الظهر، العصر، المغرب، العشاء)</span>
                 <button id="btn-prayer-science-shortcut" class="prayer-science-pill-btn" type="button">
                   🔬 أسرار وفوائد الصلاة العلمية والشرعية
                 </button>
               </div>
               <div class="prayers-grid">
-                <div class="prayer-btn" data-prayer="fajr">
-                  <span class="icon">🌅</span>
-                  <span class="name">الفجر</span>
-                  <div class="check-status"></div>
                 </div>
                 <div class="prayer-btn" data-prayer="dhuhr">
                   <span class="icon">☀️</span>
@@ -278,24 +307,106 @@
               </div>
             </div>
 
-            <!-- 2. القرآن الكريم والأذكار -->
-            <div class="quran-box">
-              <div id="quran-checkbox-container" class="custom-checkbox-row">
-                <div class="checkbox-label">
-                  <span>📖</span>
-                  <span>قرأت الورد المحدد اليوم من القرآن</span>
-                </div>
-                <div id="quran-custom-checkbox" class="custom-checkbox"></div>
-              </div>
-              <div class="quran-inputs-row">
-                <input type="text" id="quran-pages-input" class="text-input-field" placeholder="عدد الصفحات / السورة / ملاحظات القراءة..." />
-              </div>
-              <!-- أذكار الصباح والمساء -->
+            <!-- 2. أذكار الصباح والمساء -->
+            <div class="azkar-box" style="margin-bottom: 0.75rem;">
               <div class="azkar-row">
                 <div id="azkar-morning-btn" class="azkar-btn">
                   <span>🌅 أذكار الصباح</span>
                   <div class="azkar-check"></div>
+            </div>
+
+            <!-- 3. تتبع النوم وضبط الساعة البيولوجية (Circadian Sleep & Sunlight) -->
+            <div class="sleep-card glass-panel-inner" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 14px; padding: 0.95rem; margin-bottom: 0.75rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">⏰ تتبع النوم وضبط الساعة البيولوجية</span>
+                <span id="sleep-hours-display" style="font-size: 0.75rem; font-weight: 800; color: var(--accent-cyan); background: rgba(56, 189, 248, 0.12); padding: 0.2rem 0.6rem; border-radius: 8px;">لم يُسجل</span>
+              </div>
+              <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0 0 0.6rem 0;">عدد ساعات نومك الفعلية لتصنيع الألياف وهرمون النمو:</p>
+              <div class="sleep-hours-row" style="display: flex; gap: 0.4rem; margin-bottom: 0.75rem;">
+                <div class="sleep-hour-btn" data-hours="6">6 س</div>
+                <div class="sleep-hour-btn" data-hours="7">7 س</div>
+                <div class="sleep-hour-btn" data-hours="8">8 س 🏆</div>
+                <div class="sleep-hour-btn" data-hours="9">9+ س</div>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: space-between; align-items: center;">
+                <button type="button" id="btn-sunlight-anchor" class="sunlight-pill-btn">
+                  <span>☀️</span>
+                  <span>مرساة ضوء الشمس (15 د صباحاً)</span>
+                  <div class="sunlight-check"></div>
+                </button>
+                <div class="sleep-quality-selector" style="display: flex; gap: 0.35rem;">
+                  <button type="button" class="sleep-quality-btn" data-quality="good" title="نوم عميق">🟢 عميق</button>
+                  <button type="button" class="sleep-quality-btn" data-quality="fair" title="نوم متقطع">🟡 متقطع</button>
+                  <button type="button" class="sleep-quality-btn" data-quality="poor" title="أرق وإرهاق">🔴 أرق</button>
                 </div>
+              </div>
+            </div>
+
+            <!-- 4. بروتوكول نضارة الجلد وشيلد الأيزوتريتينوين (Glass Skin & Roaccutane Shield) -->
+            <div class="skin-card glass-panel-inner" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(236, 72, 153, 0.25); border-radius: 14px; padding: 0.95rem; margin-bottom: 0.75rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">🧴 شيلد بشرة الزجاج (Glass Skin & Roaccutane Shield)</span>
+                <span id="skin-shield-badge" class="skin-shield-status">بانتظار الإكمال</span>
+              </div>
+              <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0 0 0.6rem 0;">الخروج من كورس الأيزوتريتينوين ببشرة صافية زجاجية وبدون جفاف أو تصبغات شمسية.</p>
+              <div class="skin-buttons-grid">
+                <button type="button" class="skin-toggle-btn" data-skin="moisturizer" id="btn-skin-moisturizer">
+                  <span class="skin-icon">💧</span>
+                  <div class="skin-text">
+                    <span class="title">مرطب الشفاه والوجه</span>
+                    <span class="sub">بانثينول / هيدرات</span>
+                  </div>
+                  <div class="skin-check">✓</div>
+                </button>
+                <button type="button" class="skin-toggle-btn" data-skin="sunscreen" id="btn-skin-sunscreen">
+                  <span class="skin-icon">☀️</span>
+                  <div class="skin-text">
+                    <span class="title">واقي شمس طبي SPF 50+</span>
+                    <span class="sub">حماية من التصبغ</span>
+                  </div>
+                  <div class="skin-check">✓</div>
+                </button>
+                <button type="button" class="skin-toggle-btn" data-skin="roaccutane" id="btn-skin-roaccutane">
+                  <span class="skin-icon">💊</span>
+                  <div class="skin-text">
+                    <span class="title">جرعة الدواء مع دهون</span>
+                    <span class="sub">امتصاص كامل (بدون كبدة)</span>
+                  </div>
+                  <div class="skin-check">✓</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- 5. معمارية القامة والهيبة ودرع الرقبة (Posture & Stature Architecture) -->
+            <div class="posture-card glass-panel-inner" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 14px; padding: 0.95rem; margin-bottom: 0.75rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">🥋 استقامة القامة ودرع الرقبة (185cm Frame)</span>
+                <span id="posture-status-badge" class="posture-status-tag">غير منجز</span>
+              </div>
+              <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0 0 0.6rem 0;">علاج انحناء الأكتاف (Nerd Neck) وتوسيع خط الفك والترابيس لإعطاء هيبة وحضور فوري لطولك.</p>
+              <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                <button type="button" id="btn-open-posture-coach" class="primary-btn" style="flex: 1; padding: 0.55rem 1rem; font-size: 0.85rem; background: linear-gradient(135deg, #7c3aed, #9333ea);">
+                  <span>⏱️</span> ابدأ جلسة القامة والرقبة الموجهة (5 دقائق)
+                </button>
+                <button type="button" id="btn-quick-toggle-posture" class="secondary-btn" style="padding: 0.55rem 0.8rem; font-size: 0.82rem;">
+                  <span id="posture-quick-check">◻️</span> تم الإنجاز ذاتياً
+                </button>
+              </div>
+            </div>
+
+            <!-- 6. رادار الصمت والاختفاء الرقمي (Social Ghost Mode) -->
+            <div class="ghost-social-card glass-panel-inner" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 14px; padding: 0.95rem; margin-bottom: 0.75rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">👻 رادار الاختفاء الرقمي والصمت التام</span>
+                <span id="ghost-streak-badge" style="font-size: 0.78rem; font-weight: 800; color: #fbbf24; background: rgba(245, 158, 11, 0.15); padding: 0.2rem 0.6rem; border-radius: 8px;">0 يوم اختفاء</span>
+              </div>
+              <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0 0 0.6rem 0;">الغياب التام عن السوشيال ميديا (صفر ستوريز، صفر بوستات استعراضية) لصناعة صدمة الظهور بعد 6 شهور.</p>
+              <button type="button" id="btn-ghost-silence" class="ghost-silence-btn">
+                <span class="ghost-check-icon">🛡️</span>
+                <span>اليوم مر في صمت رقمي تام واختفاء كامل (100% Focus)</span>
+                <span class="ghost-active-indicator">✓</span>
+              </button>
+            </div>
                 <div id="azkar-evening-btn" class="azkar-btn">
                   <span>🌇 أذكار المساء</span>
                   <div class="azkar-check"></div>
@@ -331,7 +442,7 @@
                 <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">🥩 وقود الجسد والحديد (Hypertrophy)</span>
                 <div class="weight-input-container">
                   <span>وزن اليوم:</span>
-                  <input type="number" id="input-weight-kg" class="metric-input-mini" placeholder="68.5" step="0.1" />
+                  <input type="number" id="input-weight-kg" class="metric-input-mini" placeholder="60.0" step="0.1" />
                   <span>كجم</span>
                 </div>
               </div>
@@ -339,8 +450,8 @@
               <div id="btn-calories-target" class="fuel-toggle-btn">
                 <span class="icon">🔥</span>
                 <div class="fuel-text">
-                  <span class="title">هدف الـ 3500 سعرة حرارية + 150g بروتين</span>
-                  <span class="desc">بناء ألياف عضلية حقيقية وتغذية جسد مقاتل</span>
+                  <span class="title">هدف الـ 2850 سعرة حرارية + 135g بروتين (تضخيم نظيف)</span>
+                  <span class="desc">بناء كتلة صلبة وتجذير حقيقي على الأرض</span>
                 </div>
                 <div class="fuel-check"></div>
               </div>
@@ -351,7 +462,8 @@
                   <div class="water-cup-btn" data-liters="1">1 لتر</div>
                   <div class="water-cup-btn" data-liters="2">2 لتر</div>
                   <div class="water-cup-btn" data-liters="3">3 لتر</div>
-                  <div class="water-cup-btn" data-liters="3.5">3.5L+ 🏆</div>
+                  <div class="water-cup-btn" data-liters="3.5">3.5L</div>
+                  <div class="water-cup-btn" data-liters="4.5">4.5L+ 💧🏆</div>
                 </div>
               </div>
               <!-- Cold Shower Toggle -->
@@ -446,7 +558,458 @@
         </section>
 
       </div>
+    
+    <!-- ====================================================================
+         VIEW 5: BULK & ROOTING COMMAND (غرفة قيادة التضخيم والتجذير الأرضي)
+         ==================================================================== -->
+    <main id="view-bulk" class="view-container">
+      <div class="bulk-container">
+
+        <!-- Hero Header -->
+        <section class="bulk-hero glass-panel">
+          <div class="bulk-hero-badge">🔱 BULK & ROOTING COMMAND • هدف 72-74 كجم (14-15% دهون) وتجذير صخري</div>
+          <h2 class="bulk-hero-title">غرفة قيادة التضخيم وتكثيف النسيج العضلي</h2>
+          <p class="bulk-hero-desc">
+            لا للبمب المفرغ.. نعم للكتلة الحجرية التي تثبتك كالصخرة في الأرض. حاسبة الحصص المصرية بدون ميزان، تتبع الكثافة الكتلية الخطية، وسجل الأوزان والزيادة التدريجية.
+          </p>
+        </section>
+
+        <!-- 1. Mass Density & Trajectory Dashboard -->
+        <section class="glass-panel" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div class="section-header" style="margin-bottom: 1rem;">
+            <h3 class="section-title">
+              <span>⚖️</span>
+              لوحة الكثافة الكتلية والمسار المستهدف (Mass Density & Goal Trajectory)
+            </h3>
+            <span class="section-subtitle">من النحافة إلى الكثافة الصخرية</span>
+          </div>
+
+          <div class="bulk-stats-grid">
+            <div class="bulk-stat-badge">
+              <span class="label">الوزن الحالي</span>
+              <span id="bulk-curr-weight" class="val">60.0 كجم</span>
+              <span class="sub">نقطة البداية الحالية</span>
+            </div>
+            <div class="bulk-stat-badge highlight-cyan">
+              <span class="label">محطة 6 أشهر (Winter Arc)</span>
+              <span class="val">70.0 - 72.0 كجم</span>
+              <span class="sub">عضلات صلبة (14-15% دهون)</span>
+            </div>
+            <div class="bulk-stat-badge">
+              <span class="label">الهدف النهائي (18 شهراً)</span>
+              <span class="val">80.0 كجم</span>
+              <span class="sub">الكتلة الحجرية الطبيعية</span>
+            </div>
+            <div class="bulk-stat-badge">
+              <span class="label">معدل الزيادة الذهبي</span>
+              <span class="val">0.35 - 0.45 كجم/أسبوع</span>
+              <span class="sub">أمان ضد دهون البطن</span>
+            </div>
+          </div>
+
+          <!-- Linear Mass Density Meter -->
+          <div class="mass-density-card">
+            <div class="density-header-row">
+              <span class="density-title">🛡️ مؤشر الكثافة الكتلية الخطية (Linear Mass Density):</span>
+              <span id="density-val-display" class="density-val">32.4 كجم/متر (كتلة خفيفة)</span>
+            </div>
+            <div class="density-gauge-track">
+              <div id="density-gauge-fill" class="density-gauge-fill" style="width: 25%;"></div>
+            </div>
+            <div class="density-scale-labels">
+              <span>32.4 كجم/م (خفيف على الأرض)</span>
+              <span>38.0 كجم/م (متوسط الصلابة)</span>
+              <span style="color: #34d399; font-weight: 700;">> 40.0 كجم/م (كتلة حجرية وتجذير تام)</span>
+            </div>
+          </div>
+
+          <!-- Weekly Weigh-in Logger -->
+          <div class="weigh-in-form-row">
+            <div class="weigh-in-input-group">
+              <label for="input-saturday-weight">وزن السبت الصباحي (على الريق):</label>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <input type="number" id="input-saturday-weight" class="text-input-field" placeholder="60.5" step="0.1" style="max-width: 140px;" />
+                <span style="font-weight:700; color:#fff;">كجم</span>
+              </div>
+            </div>
+            <div class="weigh-in-input-group">
+              <label for="input-saturday-waist">محيط الخصر عند السرة (بالمازورة):</label>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <input type="number" id="input-saturday-waist" class="text-input-field" placeholder="72.0" step="0.5" style="max-width: 140px;" />
+                <span style="font-weight:700; color:#fff;">سم خصر</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <input type="number" id="input-saturday-neck" class="text-input-field" placeholder="35.5" step="0.5" style="max-width: 140px;" />
+                <span style="font-weight:700; color:#fff;">سم رقبة</span>
+              </div>
+            </div>
+            <button type="button" id="btn-save-weekly-weigh" class="primary-btn" style="align-self: flex-end; padding: 0.65rem 1.25rem;">
+              <span>💾</span> حفظ وزن الأسبوع
+            </button>
+          </div>
+
+          <div id="bulk-decision-pill" class="decision-advice-pill">
+            <span>💡 نصيحة شجرة القرار الأسبوعية: استمر على سعرات 2,850 kcal لبناء الكتلة النظيفة والتجذير.</span>
+          </div>
+
+          <!-- Canvas Weight Chart -->
+          <div style="margin-top: 1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">📈 مسار النمو الأسبوعي الفعلي مقابل المسار المستهدف (100% أوفلاين):</span>
+            </div>
+            <canvas id="bulk-weight-chart" width="900" height="220" style="width:100%; height:180px; background:rgba(6,9,14,0.7); border-radius:12px; border:1px solid rgba(56,189,248,0.18);"></canvas>
+          </div>
+        </section>
+
+        <!-- 2. No-Scale Egyptian Portion Tracker & Live Gauges -->
+        <section class="glass-panel" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div class="section-header" style="margin-bottom: 1rem;">
+            <h3 class="section-title">
+              <span>🍽️</span>
+              حاسبة الحصص المصرية بدون ميزان طعام (No-Scale Macro Commander)
+            </h3>
+            <span class="section-subtitle">اضغط بنقرة واحدة لزيادة حصص يومك • محسوبة بالسعرات والجرامات تلقائياً</span>
+          </div>
+
+          <!-- Live Macro Gauge Bars -->
+          <div class="bulk-macro-bars">
+            <div class="macro-bar-card">
+              <div class="macro-bar-header">
+                <span class="macro-name">🔥 السعرات الحرارية اليومية</span>
+                <span id="bulk-cals-count" class="macro-val">0 / 2850 kcal</span>
+              </div>
+              <div class="bar-track">
+                <div id="bulk-cals-bar" class="bar-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+            <div class="macro-bar-card">
+              <div class="macro-bar-header">
+                <span class="macro-name">🥩 البروتين الصافي (لبناء الألياف والتجذير)</span>
+                <span id="bulk-prot-count" class="macro-val">0 / 135 g</span>
+              </div>
+              <div class="bar-track">
+                <div id="bulk-prot-bar" class="bar-fill" style="width: 0%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- The 1-Click Titan Shake Special Banner -->
+          <div class="titan-shake-banner">
+            <div class="titan-shake-info">
+              <span class="titan-icon">🥤</span>
+              <div>
+                <h4 style="color:#fff; margin:0; font-size:1rem; font-weight:800;">شيك التايتن الصباحي السائل (860 سعرة | 32 جم بروتين)</h4>
+                <p style="color:var(--text-secondary); margin:0.2rem 0 0; font-size:0.78rem;">
+                  لبن سايب + شوفان مطحون + زبدة سوداني + موزة + عسل أسود • يُشرب في دقيقتين ويسهل الهضم تماماً
+                </p>
+              </div>
+            </div>
+            <button type="button" id="btn-quick-add-shake" class="primary-btn" style="white-space: nowrap; padding: 0.6rem 1.1rem;">
+              <span>⚡</span> أضف الشيك لليوم (+860 kcal)
+            </button>
+          </div>
+
+          <!-- Grid of Household Portion Incrementers -->
+          <div class="bulk-portion-grid">
+
+            <div class="portion-card" data-food="bread">
+              <div class="portion-head">
+                <span class="food-icon">🍞</span>
+                <span class="food-name">رغيف عيش بلدي</span>
+              </div>
+              <div class="food-meta">275 kcal | 8.5g P | 55g C</div>
+              <div class="portion-controls">
+                <button type="button" class="btn-portion-step btn-dec" data-action="dec">-</button>
+                <span class="portion-count-val" data-val="bread">0</span>
+                <button type="button" class="btn-portion-step btn-inc" data-action="inc">+</button>
+              </div>
+            </div>
+
+            <div class="portion-card" data-food="rice">
+              <div class="portion-head">
+                <span class="food-icon">🍚</span>
+                <span class="food-name">كوباية أرز مصري</span>
+              </div>
+              <div class="food-meta">240 kcal | 4.5g P | 52g C</div>
+              <div class="portion-controls">
+                <button type="button" class="btn-portion-step btn-dec" data-action="dec">-</button>
+                <span class="portion-count-val" data-val="rice">0</span>
+                <button type="button" class="btn-portion-step btn-inc" data-action="inc">+</button>
+              </div>
+            </div>
+
+            <div class="portion-card" data-food="pasta">
+              <div class="portion-head">
+                <span class="food-icon">🍝</span>
+                <span class="food-name">كوباية مكرونة مسلوقة</span>
+              </div>
+              <div class="food-meta">210 kcal | 7.0g P | 43g C</div>
+              <div class="portion-controls">
+                <button type="button" class="btn-portion-step btn-dec" data-action="dec">-</button>
+                <span class="portion-count-val" data-val="pasta">0</span>
+                <button type="button" class="btn-portion-step btn-inc" data-action="inc">+</button>
+              </div>
+            </div>
+
+            <div class="portion-card" data-food="gizzards">
+              <div class="portion-head">
+                <span class="food-icon">🍗</span>
+                <span class="food-name">كف قوانص دجاج (100g)</span>
+              </div>
+              <div class="food-meta">150 kcal | 25g P | صفر فيتامين A</div>
+              <div class="portion-controls">
+                <button type="button" class="btn-portion-step btn-dec" data-action="dec">-</button>
+                <span class="portion-count-val" data-val="gizzards">0</span>
+                <button type="button" class="btn-portion-step btn-inc" data-action="inc">+</button>
+              </div>
+            </div>
+
+            <div class="portion-card" data-food="milk">
+              <div class="portion-head">
+                <span class="food-icon">🥛</span>
+                <span class="food-name">كوباية لبن بلدي مغلي</span>
+              </div>
+              <div class="food-meta">130 kcal | 6.5g P | كالسيوم ودهون</div>
+              <div class="portion-controls">
+                <button type="button" class="btn-portion-step btn-dec" data-action="dec">-</button>
+                <span class="portion-count-val" data-val="milk">0</span>
+                <button type="button" class="btn-portion-step btn-inc" data-action="inc">+</button>
+              </div>
+            </div>
+
+            <div class="portion-card" data-food="peanut">
+              <div class="portion-head">
+                <span class="food-icon">🥜</span>
+                <span class="food-name">معلقة كبيرة سوداني / طحينة</span>
+              </div>
+              <div class="food-meta">120 kcal | 5.0g P | 10g F</div>
+              <div class="portion-controls">
+                <button type="button" class="btn-portion-step btn-dec" data-action="dec">-</button>
+                <span class="portion-count-val" data-val="peanut">0</span>
+                <button type="button" class="btn-portion-step btn-inc" data-action="inc">+</button>
+              </div>
+            </div>
+
+            <div class="portion-card" data-food="batata">
+              <div class="portion-head">
+                <span class="food-icon">🍠</span>
+                <span class="food-name">ثمرة بطاطا مشوية كبيرة</span>
+              </div>
+              <div class="food-meta">175 kcal | 3.0g P | 41g C وقود</div>
+              <div class="portion-controls">
+                <button type="button" class="btn-portion-step btn-dec" data-action="dec">-</button>
+                <span class="portion-count-val" data-val="batata">0</span>
+                <button type="button" class="btn-portion-step btn-inc" data-action="inc">+</button>
+              </div>
+            </div>
+
+            <div class="portion-card" data-food="eggs">
+              <div class="portion-head">
+                <span class="food-icon">🍳</span>
+                <span class="food-name">2 بيضة أومليت متبل</span>
+              </div>
+              <div class="food-meta">150 kcal | 13g P | 10g F</div>
+              <div class="portion-controls">
+                <button type="button" class="btn-portion-step btn-dec" data-action="dec">-</button>
+                <span class="portion-count-val" data-val="eggs">0</span>
+                <button type="button" class="btn-portion-step btn-inc" data-action="inc">+</button>
+              </div>
+            </div>
+
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem;">
+            <button type="button" id="btn-reset-portions" class="secondary-btn" style="font-size:0.78rem; padding:0.4rem 0.85rem;">
+              <span>🔄</span> تصفير حصص اليوم
+            </button>
+            <span style="font-size:0.75rem; color:var(--text-muted);">✓ يتم حفظ الحصص تلقائياً ومزامنتها مع الـ Daily Log</span>
+          </div>
+        </section>
+
+        <!-- 3. Workout Logger, Progressive Overload & Grounding Lifts -->
+        <section class="glass-panel" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div class="section-header" style="margin-bottom: 1rem;">
+            <h3 class="section-title">
+              <span>🏋️‍♂️</span>
+              سجل التمارين والزيادة التدريجية (Workout & Ground-Rooting Logger)
+            </h3>
+            <span class="section-subtitle">نظام 4 أيام Upper / Lower مع تتبع أوزان التجذير في 55 دقيقة</span>
+          </div>
+
+          <!-- Split Selector Tabs -->
+          <div class="split-nav-tabs">
+            <button type="button" class="split-tab-btn active" data-split="upper_a">الإثنين: Upper A (صدر وظهور)</button>
+            <button type="button" class="split-tab-btn" data-split="lower_a">الثلاثاء: Lower A (كوادز وتجذير)</button>
+            <button type="button" class="split-tab-btn" data-split="upper_b">الخميس: Upper B (أكتاف وسماكة)</button>
+            <button type="button" class="split-tab-btn" data-split="lower_b">الجمعة: Lower B (خلفيات وأحمال محورية)</button>
+          </div>
+
+          <!-- Dynamic Exercise List -->
+          <div id="workout-exercises-container" class="workout-exercises-box" style="margin-top:1rem;">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </section>
+
+        <!-- 4. Egyptian Budget Recipes Vault -->
+        <section class="glass-panel" style="padding: 1.5rem;">
+          <div class="section-header" style="margin-bottom: 1rem;">
+            <h3 class="section-title">
+              <span>🥘</span>
+              دليل الوجبات الاقتصادية المصرية المعتمدة لعمر (Budget Fuel Codex)
+            </h3>
+            <span class="section-subtitle">مكونات رخيصة بدون قريش وبدون كبدة حيوانية ومعتمدة سريرياً</span>
+          </div>
+
+          <div class="recipes-grid">
+
+            <div class="recipe-card">
+              <div class="recipe-header">
+                <span class="recipe-title">طاسة قوانص الدجاج بالثوم والبطاطس المسلوقة</span>
+                <span class="recipe-price-badge">~18 ج</span>
+              </div>
+              <div class="recipe-tags">
+                <span class="rtag tag-prot">45g بروتين</span>
+                <span class="rtag tag-cal">780 سعرة</span>
+                <span class="rtag tag-safe">آمن 100% مع الدواء</span>
+              </div>
+              <p class="recipe-desc">150 جم قوانص فراخ مطبوخة بالثوم والبهارات + 2 بطاطس مسلوقة بزيت زيتون + 2 رغيف بلدي ساخن.</p>
+              <button type="button" class="btn-add-recipe-portions primary-btn" data-recipe="gizzards_meal">
+                <span>⚡</span> أضف هذه الوجبة لحصص اليوم
+              </button>
+            </div>
+
+            <div class="recipe-card">
+              <div class="recipe-header">
+                <span class="recipe-title">سمك ماكريل مشوي بالليمون والأرز المصري</span>
+                <span class="recipe-price-badge">~25 ج</span>
+              </div>
+              <div class="recipe-tags">
+                <span class="rtag tag-prot">48g بروتين</span>
+                <span class="rtag tag-cal">820 سعرة</span>
+                <span class="rtag tag-safe">أوميغا 3 بحري</span>
+              </div>
+              <p class="recipe-desc">سمكة ماكريل مشوية بالردة والليمون + 2 كوب أرز مصري مطبوخ + سلطة خضراء وطماطم.</p>
+              <button type="button" class="btn-add-recipe-portions primary-btn" data-recipe="mackerel_meal">
+                <span>⚡</span> أضف هذه الوجبة لحصص اليوم
+              </button>
+            </div>
+
+            <div class="recipe-card">
+              <div class="recipe-header">
+                <span class="recipe-title">الكشري المصري العضلي المتكامل</span>
+                <span class="recipe-price-badge">~12 ج</span>
+              </div>
+              <div class="recipe-tags">
+                <span class="rtag tag-prot">32g بروتين</span>
+                <span class="rtag tag-cal">750 سعرة</span>
+                <span class="rtag tag-safe">تكامل أحماض أمينية</span>
+              </div>
+              <p class="recipe-desc">طبق كشري مصري عائلي (أرز + مكرونة + عدس بجبة مضاعف + حمص) مع صلصة ودقة.</p>
+              <button type="button" class="btn-add-recipe-portions primary-btn" data-recipe="koshary_meal">
+                <span>⚡</span> أضف هذه الوجبة لحصص اليوم
+              </button>
+            </div>
+
+            <div class="recipe-card">
+              <div class="recipe-header">
+                <span class="recipe-title">فطور المقاتل: فول بالزيت والطحينة وبيض مخفي</span>
+                <span class="recipe-price-badge">~16 ج</span>
+              </div>
+              <div class="recipe-tags">
+                <span class="rtag tag-prot">34g بروتين</span>
+                <span class="rtag tag-cal">740 سعرة</span>
+                <span class="rtag tag-safe">طاقة شبع 5 ساعات</span>
+              </div>
+              <p class="recipe-desc">طبق فول مدمس بملعقة طحينة وزيت زيتون + بيضتان مهروستان تماماً في الفول + 2 رغيف بلدي.</p>
+              <button type="button" class="btn-add-recipe-portions primary-btn" data-recipe="foul_meal">
+                <span>⚡</span> أضف هذه الوجبة لحصص اليوم
+              </button>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
     </main>
+
+
+    </main>
+
+    <!-- ==================== VIEW: GHOST VAULT (خزانة الشبح وتوثيق التحول) ==================== -->
+    <main id="view-vault" class="view-container">
+      <div class="bulk-container">
+
+        <!-- Hero Header -->
+        <section class="bulk-hero glass-panel">
+          <div class="bulk-hero-badge">📸 GHOST VAULT • 100% OFFLINE & PRIVACY-FIRST</div>
+          <h2 class="bulk-hero-title">خزانة الشبح لتوثيق التحول الفسيولوجي الصامت</h2>
+          <p class="bulk-hero-desc">
+            جميع الصور مشفرة ومحفوظة محلياً على جهازك فقط عبر متصفحك (IndexedDB / LocalStorage) ولا تغادر هاتفك أو حاسوبك نهائياً. وثّق مسارك كل أسبوعين، واسحق الـ Body Dysmorphia بالدليل البصري الصادق لمقارنة اليوم 1 باليوم 180.
+          </p>
+        </section>
+
+        <!-- Before & After Comparison Slider -->
+        <section class="glass-panel" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div class="section-header" style="margin-bottom: 1rem;">
+            <h3 class="section-title">
+              <span>⚡</span>
+              سلايدر مقارنة التحول الحي (Before & After Matrix)
+            </h3>
+            <span class="section-subtitle">قارن أي محطتين زمنيتين بوضوح بصري قاطع</span>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px;">
+              <label style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 0.35rem;">الصورة الأولى (قبل):</label>
+              <select id="vault-select-before" class="text-input-field" style="width: 100%; padding: 0.5rem;">
+                <option value="w0">الأسبوع 0 (نقطة البداية 60 كجم)</option>
+              </select>
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+              <label style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 0.35rem;">الصورة الثانية (بعد / الحالي):</label>
+              <select id="vault-select-after" class="text-input-field" style="width: 100%; padding: 0.5rem;">
+                <option value="w0">الأسبوع 0 (نقطة البداية 60 كجم)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="vault-compare-box" class="vault-compare-container">
+            <div id="vault-compare-empty" style="text-align: center; padding: 3rem 1rem; color: var(--text-dim);">
+              <span style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">📸</span>
+              ارفع صور المحطات بالأسفل لتفعيل المقارنة الحية التلقائية هنا
+            </div>
+            <div id="vault-compare-view" class="vault-split-view" style="display: none;">
+              <div class="compare-side">
+                <span class="compare-label" id="compare-label-before">قبل</span>
+                <img id="compare-img-before" src="" alt="Before" class="compare-photo">
+              </div>
+              <div class="compare-side">
+                <span class="compare-label" id="compare-label-after">بعد</span>
+                <img id="compare-img-after" src="" alt="After" class="compare-photo">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Milestones Grid -->
+        <section class="glass-panel" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div class="section-header" style="margin-bottom: 1rem;">
+            <h3 class="section-title">
+              <span>🎯</span>
+              محطات التوثيق الـ 8 خلال الـ 180 يوماً
+            </h3>
+            <span class="section-subtitle">التقط صورة بملابس الجيم وفي نفس الإضاءة كل أسبوعين</span>
+          </div>
+
+          <div id="vault-milestones-grid" class="vault-milestones-grid">
+            <!-- Rendered dynamically by JS -->
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+
 
     <!-- ====================================================================
          VIEW 2: 180-DAY MATRIX & LIQUID PROGRESS GRID
@@ -1006,6 +1569,53 @@
   </div>
 
   <!-- Emergency Relapse Intervention Overlay (SOS Protocol) -->
+  
+  <!-- Posture & Stature Architecture Coach Modal (5-Minute Interactive Routine) -->
+  <div id="posture-modal" class="emergency-overlay">
+    <div class="emergency-container glass-panel" style="border-color: rgba(168, 85, 247, 0.4);">
+      <div class="emergency-header">
+        <div class="emergency-pulse-badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border-color: rgba(168, 85, 247, 0.4);">
+          🥋 مدرب استقامة القامة ودرع الرقبة (5 دقائق)
+        </div>
+        <button type="button" id="btn-close-posture" class="emergency-close-btn" title="إغلاق">✕</button>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 1rem;">
+        <h3 id="posture-step-title" style="color: #fff; font-size: 1.25rem; font-weight: 800; margin: 0 0 0.35rem 0;">Chin Tucks (دفع الذقن وتثبيت الرقبة)</h3>
+        <span id="posture-step-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; font-size: 0.8rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 6px;">المرحلة 1 من 5 • دقيقة 1</span>
+      </div>
+
+      <div class="posture-visualizer" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
+        <div id="posture-circle" class="breath-circle" style="border-color: #a855f7; box-shadow: 0 0 35px rgba(168, 85, 247, 0.35);">
+          <span id="posture-timer-text" class="breath-state-text" style="font-size: 1.8rem; font-weight: 800; color: #fff;">05:00</span>
+          <span id="posture-phase-name" class="breath-subtext" style="color: #c084fc;">اضغط للبدء</span>
+        </div>
+      </div>
+
+      <div id="posture-instruction-box" class="sos-card reality-card" style="border-color: rgba(168, 85, 247, 0.3); background: rgba(168, 85, 247, 0.05); margin-bottom: 1rem;">
+        <div class="sos-card-icon">💡</div>
+        <div class="sos-card-content">
+          <h4 id="posture-cue-title" style="color: #c084fc;">تكنيك الأداء:</h4>
+          <p id="posture-cue-text" style="color: #e2e8f0; font-size: 0.85rem; line-height: 1.5; margin: 0;">
+            ادفع ذقنك للخلف باعتدال كأنك تصنع ذقناً مزدوجاً وعصر عضلات الرقبة الخلفية. يصحح انحناء الرأس للأمام (Nerd Neck) ويبرز خط الفك.
+          </p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+        <button type="button" id="btn-posture-start" class="primary-btn" style="padding: 0.65rem 1.5rem; background: linear-gradient(135deg, #7c3aed, #9333ea);">
+          <span>▶️</span> ابدأ الجلسة (5 دقائق)
+        </button>
+        <button type="button" id="btn-posture-pause" class="secondary-btn" style="padding: 0.65rem 1.2rem; display: none;">
+          <span>⏸️</span> إيقاف مؤقت
+        </button>
+        <button type="button" id="btn-posture-complete" class="primary-btn" style="padding: 0.65rem 1.5rem; background: linear-gradient(135deg, #059669, #10b981); display: none;">
+          <span>🏆</span> إتمام الجلسة وتثبيت النتيجة
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="emergency-modal" class="emergency-overlay">
     <div class="emergency-container glass-panel">
       <div class="emergency-header">
@@ -1101,6 +1711,6 @@
   </div>
 
   <!-- Local Script -->
-  <script src="app.js?v=7.0"></script>
+  <script src="app.js?v=8.3"></script>
 </body>
 </html>
